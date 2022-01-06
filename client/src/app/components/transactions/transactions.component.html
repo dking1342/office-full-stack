@@ -1,0 +1,30 @@
+<div>
+    <!-- error -->
+</div>
+<h1>Transactions <span><button (click)="showForm()">Add</button></span></h1>
+<app-form-transactions *ngIf="showAddForm" [type]="formType"></app-form-transactions>
+<table>
+    <thead>
+        <tr>
+            <th>Employee</th>
+            <th>Supplier</th>
+            <th>Product</th>
+            <th>Customer</th>
+            <th>Type</th>
+            <th>Quantity</th>
+            <th>Info</th>
+        </tr>
+    </thead>
+    <tbody *ngIf="isLoading">Loading...</tbody>
+    <tbody *ngIf="!isLoading">
+        <tr *ngFor="let t of trans">
+            <td *ngIf="t.employee.length">{{t.employee[0].firstName}} {{t.employee[0].lastName}}</td>
+            <td *ngIf="t.supplier.length">{{t.supplier[0].sname}}</td>
+            <td *ngIf="t.product.length">{{t.product[0].pname}}</td>
+            <td *ngIf="t.customer.length">{{t.customer[0].cname}}</td>
+            <td>{{t.transactionType}}</td>
+            <td>{{t.transaction_quantity}}</td>
+            <td><button (click)="getInfo(t.transaction_id)">Info</button></td>
+        </tr>
+    </tbody>    
+</table>

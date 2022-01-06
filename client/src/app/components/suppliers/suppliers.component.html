@@ -1,0 +1,29 @@
+<div>
+    <!-- error -->
+</div>
+<h1>Suppliers <span><button (click)="showForm()">Add</button></span></h1>
+<app-form-supplier *ngIf="showAddForm" [type]="formType"></app-form-supplier>
+<table>
+    <thead>
+        <tr>
+            <th style="border-bottom: 1.5px black solid;">Name</th>
+            <th style="border-bottom: 1.5px black solid;">Supplier Info</th>
+            <th style="border-bottom: 1.5px black solid;">Quantity</th>
+            <th style="padding:0px 15px;border-bottom: 1.5px black solid;">List</th>
+            <th style="border-bottom: 1.5px black solid;">Product Info</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let supplier of suppliers">
+            <td style=" margin:5px 0px;">{{supplier.sname}}</td>
+            <td style="margin:5px 0px;border-right: 1.5px solid black;padding-right:5px; text-align: center;"><button (click)="getInfo(supplier.supplier_id)">Info</button></td>
+            <td style="text-align: center;margin:5px 0px;">{{supplier.products.length}}</td>
+            <td style="padding:0px 15px;margin:5px 0px;">
+                <tr *ngFor="let p of supplier.products; let i = index" >
+                    <td style="padding:5px 0px;">{{i + 1}}- {{p.pname}}</td>
+                </tr>
+            </td>
+            <td style="margin:5px 0px;text-align: center;"><button (click)="getProductInfo(supplier.supplier_id)">Info</button></td>
+        </tr>
+    </tbody>    
+</table>

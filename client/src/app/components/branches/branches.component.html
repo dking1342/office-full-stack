@@ -1,0 +1,21 @@
+<div>
+    <!-- error -->
+</div>
+<h1>Branches <span><button (click)="showForm()">Add</button></span></h1>
+<app-form-branch *ngIf="showAddForm" [type]="formType"></app-form-branch>
+<table>
+    <thead>
+        <tr>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Info</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let branch of branches">
+            <td>{{branch.location}}</td>
+            <td>{{branch.branchStatus}}</td>
+            <td><button (click)="getInfo(branch.branch_id)">Info</button></td>
+        </tr>
+    </tbody>    
+</table>

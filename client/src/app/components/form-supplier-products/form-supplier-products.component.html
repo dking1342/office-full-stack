@@ -1,0 +1,13 @@
+<p *ngIf="isLoading">Loading...</p>
+<form *ngIf="!hasAllProducts && !isLoading">
+    <div>
+        <label for="product_name">Name</label>
+        <select name="product" [(ngModel)]="selectedProduct" required>
+            <option *ngFor="let drop of dropdownList" [ngValue]="drop">{{ drop.pname }}</option>
+        </select>
+    </div>
+    <div>
+        <button (click)="submitForm()">Submit</button>
+    </div>
+</form>
+<p *ngIf="hasAllProducts && !isLoading">Supplier has all the products available</p>

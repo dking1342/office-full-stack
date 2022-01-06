@@ -1,0 +1,19 @@
+<div>
+    <!-- error -->
+</div>
+<h1>Customers <span><button (click)="showForm()">Add</button></span></h1>
+<app-form-customer *ngIf="showAddForm" [type]="formType"></app-form-customer>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Info</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let customer of customers">
+            <td>{{customer.cname}}</td>
+            <td><button (click)="getInfo(customer.customer_id)">Info</button></td>
+        </tr>
+    </tbody>    
+</table>

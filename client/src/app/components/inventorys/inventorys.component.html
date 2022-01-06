@@ -1,0 +1,28 @@
+<div>
+    <!-- error -->
+</div>
+<h1>Inventory 
+    <span><button (click)="showFilter()">Filter</button></span>
+    <span><button (click)="resetList()">Reset</button></span>
+</h1>
+<app-form-inventory *ngIf="showFilterForm" [type]="formType" [list]="inventory" (filterUpdate)="addFilterItem($event)"></app-form-inventory>
+<table>
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+        </tr>
+    </thead>
+    <tbody *ngIf="!filteredList.length">
+        <tr *ngFor="let inv of inventory" >
+            <td>{{inv.product.pname}}</td>
+            <td>{{inv.quantity}}</td>
+        </tr>
+    </tbody> 
+    <tbody *ngIf="filteredList.length">
+        <tr *ngFor="let finv of filteredList">
+            <td>{{finv.product.pname}}</td>
+            <td>{{finv.quantity}}</td>
+        </tr>
+    </tbody>   
+</table>

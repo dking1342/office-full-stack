@@ -1,0 +1,15 @@
+<form>
+    <div>
+        <label for="location">Location</label>
+        <input type="text" name="location" [(ngModel)]="location" required>
+    </div>
+    <div>
+        <label for="status">Status</label>
+        <select name="selectedStatus" [(ngModel)]="selectedStatus" required>
+            <option *ngFor="let status of statuses" [value]="status">{{status}}</option>
+        </select>
+    </div>
+    <div>
+        <button (click)="submitForm()">Submit</button>
+    </div>
+</form>

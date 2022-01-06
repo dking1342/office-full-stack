@@ -1,0 +1,32 @@
+<div>
+    <!-- error -->
+</div>
+<a routerLink="/transactions">Back</a>
+<hr>
+<table>
+    <thead>
+        <tr>
+            <th>Employee</th>
+            <th>Supplier</th>
+            <th>Product</th>
+            <th>Customer</th>
+            <th>Type</th>
+            <th>Quantity</th>
+            <th>Edit</th>
+        </tr>
+    </thead>
+    <tbody *ngIf="isLoading">Loading...</tbody>
+    <tbody *ngIf="!isLoading">
+        <tr *ngFor="let t of transaction">
+            <td *ngIf="t.employee.length > 0">{{t.employee[0].firstName}} {{t.employee[0].lastName}}</td>
+            <td *ngIf="t.supplier.length > 0">{{t.supplier[0].sname}}</td>
+            <td *ngIf="t.product.length > 0">{{t.product[0].pname}}</td>
+            <td *ngIf="t.customer.length > 0">{{t.customer[0].cname}}</td>
+            <td>{{t.transactionType}}</td>
+            <td>{{t.transaction_quantity}}</td>
+            <td><button (click)="editTransaction()">Edit</button></td>
+        </tr>
+    </tbody>    
+</table>
+<h3 *ngIf="showEditForm">Edit Transaction</h3>
+<app-form-transactions *ngIf="showEditForm" [type]="formType" [data]="transaction" [supplierData]="suppliers"></app-form-transactions>

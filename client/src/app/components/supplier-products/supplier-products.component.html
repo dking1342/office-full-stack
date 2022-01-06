@@ -1,0 +1,21 @@
+<div>
+    <!-- error -->
+</div>
+<a routerLink="/suppliers">Back</a>
+<hr>
+<h1>Supplier: {{supplier_name}} <span><button (click)="showForm()">Add Product</button></span></h1>
+<app-form-supplier-products *ngIf="showAddForm" [type]="formType"></app-form-supplier-products>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let product of products">
+            <td>{{product.pname}}</td>
+            <td><button (click)="deleteProduct(product)">Delete</button></td>
+        </tr>
+    </tbody>    
+</table>

@@ -1,0 +1,7 @@
+<form>
+    <label for="product">Products: </label>
+    <select name="product" [(ngModel)]="selectedProduct" (change)=updateList($event)>
+        <option *ngFor="let l of list" [value]="l.product.pname">{{l.product.pname}}</option>
+    </select>
+
+</form>

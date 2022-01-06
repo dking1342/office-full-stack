@@ -1,0 +1,23 @@
+<div>
+    <!-- error -->
+</div>
+<a routerLink="/customers">Back</a>
+<hr>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let c of customer">
+            <td>{{c.cname}}</td>
+            <td><button (click)="editCustomer()">Edit</button></td>
+            <td><button (click)="deleteCustomer(c.customer_id)">Delete</button></td>
+        </tr>
+    </tbody>    
+</table>
+<h3 *ngIf="showEditForm">Edit Customer</h3>
+<app-form-customer *ngIf="showEditForm" [type]="formType"></app-form-customer>
