@@ -1,19 +1,53 @@
-<div>
-    <!-- error -->
-</div>
-<h1>Products <span><button (click)="showForm()">Add</button></span></h1>
-<app-form-product *ngIf="showAddForm" [type]="formType"></app-form-product>
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Info</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let product of products">
-            <td>{{product.pname}}</td>
-            <td><button (click)="getInfo(product.product_id)">Info</button></td>
-        </tr>
-    </tbody>    
-</table>
+<ng-container *ngIf="(appState$ | async) as appState" [ngSwitch]="appState.dataState">
+    <ng-container *ngSwitchCase="DataState.LOADING">
+        loading...
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.LOADED">
+        <h1>
+            {{title}} 
+            <span *ngIf="isAll">
+                <button (click)="showAddForm = !showAddForm">Add</button>
+            </span>
+        </h1>
+
+        <app-form-product 
+            *ngIf="showAddForm" 
+            [type]="formType"
+            (closeForm)="closeAddForm()"
+            (refreshForm)="refreshProductView($event)"
+        ></app-form-product>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th *ngIf="isAll">Info</th>
+                    <th *ngIf="!isAll">Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let product of (appState.appData?.data || [])">
+                    <td>{{product.pname}}</td>
+                    <td *ngIf="isAll"><button (click)="getInfo(product.product_id)">Info</button></td>
+                    <td *ngIf="!isAll"><button (click)="showEditForm = !showEditForm">Edit</button></td>
+                </tr>
+            </tbody>    
+        </table>
+
+        <ng-container *ngIf="showEditForm">
+            <h3>Edit {{title}}</h3>
+            <app-form-product
+                [type]="formType"
+                [data]="appState"
+                (closeForm)="closeEditForm()"
+                (refreshForm)="refreshProductView($event)"
+            ></app-form-product>
+        </ng-container>
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.ERROR">
+        {{appState.error}}
+    </ng-container>
+</ng-container>
+
+
+
+

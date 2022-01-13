@@ -1,3 +1,55 @@
+export type ResponseParameter = Employee | Branch | Customer | Product | Supplier | Transaction;
+
+export let responseContent = {
+    timestamp:new Date(),
+    HttpStatus:"",
+    status:"",
+    statusCode:0,
+    message:"",
+    developerMessage:"",
+    data:[],
+    boolData:false
+}
+
+export interface FetchResponse<T> {
+    timestamp?: Date,
+    HttpStatus?: string,
+    status?: string,
+    statusCode?: number,
+    message?: string,
+    developerMessage?: string,
+    data?: T[],
+    boolData?: boolean
+}
+
+export interface Category {
+    id: string,
+    firstName?: string,
+    lastName?: string,
+    role?: string,
+    branch?: Branch,
+    branch_id?: string,
+    location?: string, 
+    branchStatus?: string,
+    customer_id?:string,
+    cname?:string,
+    product_id?:string,
+    pname?:string,
+    supplier_id?:string,
+    sname?:string,
+    products?:Product[],
+    inventory_id?:string,
+    product?:Product,
+    quantity?:number,
+    transaction_id?:string,
+    employee_id?:string,
+    customer_id_trans?:string | null,
+    supplier_id_trans?:string | null,
+    product_id_trans?:string,
+    transactionType?:string,
+    transaction_quantity?:number
+}
+
 export interface EmployeesResponse {
     timestamp?: Date,
     HttpStatus?: string,
@@ -5,10 +57,19 @@ export interface EmployeesResponse {
     statusCode?: number,
     message?: string,
     developerMessage?: string,
-    employeeData?: Employee[],
-    employeeBoolData?: boolean,
-    branchData?: Branch[],
-    branchBoolData?: boolean,
+    data?: Employee[],
+    boolData?: boolean
+}
+
+export interface BranchResponse {
+    timestamp?: Date,
+    HttpStatus?: string,
+    status?: string,
+    statusCode?: number,
+    message?: string,
+    developerMessage?: string,
+    data?: Branch[],
+    boolData?: boolean
 }
 
 export interface BranchResponse {

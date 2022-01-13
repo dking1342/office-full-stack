@@ -1,25 +1,24 @@
-<div>
-    <!-- error -->
-</div>
-<h1>Employees <span><button (click)="showForm()">Add</button></span></h1>
-<app-form-employee *ngIf="showAddForm" [type]="formType"></app-form-employee>
-<table>
-    <thead>
-        <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Role</th>
-            <th>Branch</th>
-            <th>Info</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let employee of employees">
-            <td>{{employee.firstName}}</td>
-            <td>{{employee.lastName}}</td>
-            <td>{{employee.role.slice(0,1) + employee.role.slice(1).toLowerCase()}}</td>
-            <td>{{employee.branch.location.slice(0,1) + employee.branch.location.toLowerCase().slice(1)}}</td>
-            <td><button (click)="getInfo(employee.id)">Info</button></td>
-        </tr>
-    </tbody>    
-</table>
+<ng-container *ngIf="(appState$ | async) as appState" [ngSwitch]="appState.dataState">
+    <ng-container *ngSwitchCase="DataState.LOADING">
+        loading...
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.LOADED">
+        <h1>{{ title }} <span *ngIf="isAll"><button (click)="showForm = !showForm">Add</button></span></h1>
+        <app-form-employee 
+            *ngIf="showForm" 
+            [type]="formType" 
+            (formRefresh)="refreshEmployeeView(dataSubject.value)"
+            (closeForm)="closeFormAction()"
+        ></app-form-employee>
+        <app-table-employees 
+            [appState]="appState" 
+            [isAll]="isAll" 
+            [type]="formType"
+            (formRefresh)="refreshEmployeeView($event)"
+            (closeForm)="closeFormAction()"
+        ></app-table-employees>
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.ERROR">
+        {{appState.error}}
+    </ng-container>
+</ng-container>

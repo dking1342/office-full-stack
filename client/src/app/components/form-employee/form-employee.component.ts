@@ -1,8 +1,11 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Roles } from 'src/app/enums/roles';
 import { Router } from '@angular/router';
 import { FetchService } from 'src/app/services/fetch.service';
-import { Branch, BranchResponse, Employee, EmployeesResponse } from 'src/types/general';
+import { Branch, BranchResponse, Employee, EmployeesResponse, FetchResponse, responseContent } from 'src/types/general';
+import { Requeststatus } from 'src/app/enums/requeststatus';
+import { Appstate } from 'src/app/interfaces/appstate';
+import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
 
 @Component({
   selector: 'app-form-employee',
@@ -10,7 +13,15 @@ import { Branch, BranchResponse, Employee, EmployeesResponse } from 'src/types/g
   styleUrls: ['./form-employee.component.css']
 })
 export class FormEmployeeComponent implements OnInit {
+
   @Input() type = "";
+  @Input() appState:Appstate<FetchResponse<Employee>> = {dataState:Requeststatus.LOADED,appData:{}};
+  
+  @Output() formRefresh = new EventEmitter<FetchResponse<Employee>>();
+  @Output() closeForm = new EventEmitter<void>();
+  @Output() closeTableForm = new EventEmitter<void>();
+  @Output() tableFormRefresh = new EventEmitter<FetchResponse<Employee>>();
+
   firstName: string = "";
   lastName: string = "";
   selectedBranch: string = "";
@@ -18,6 +29,13 @@ export class FormEmployeeComponent implements OnInit {
   roles: Roles[] = [];
   branchs: Branch[] = [];
   employee_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
+
+  public appStateForm$!: Observable<Appstate<FetchResponse<Employee>>>;
+  saveSubject = new BehaviorSubject<FetchResponse<Employee>>(responseContent);
+  isLoadingSubject = new BehaviorSubject<boolean>(false);
+  isLoading$ = this.isLoadingSubject.asObservable();
+  readonly FetchStatus = Requeststatus;
+
 
   constructor(
     private fetchService: FetchService,
@@ -30,47 +48,28 @@ export class FormEmployeeComponent implements OnInit {
     }
     if(this.type === "edit"){
       this.getBranches();
-      this.getEmployee();
+      this.firstName = this.appState.appData!.data![0].firstName;
+      this.lastName = this.appState.appData!.data![0].lastName;
+      this.selectedRole = this.appState.appData!.data![0].role;
+      this.selectedBranch = this.appState.appData!.data![0].branch.branch_id;
     }
-    this.roles.push(Roles.ADMIN);
-    this.roles.push(Roles.MANAGER);
-    this.roles.push(Roles.SALES);
+    Object.values(Roles).map(v=> this.roles.push(v));
   }
 
-  getBranches(){
-    this.fetchService.getBranchList().subscribe((response:BranchResponse)=>{
-      if(response.statusCode === 200){
-        this.branchs = response.branchData!.flat(1);
-        
-      }
-    })
+  checkResponse(response:FetchResponse<Employee>){
+    this.formRefresh.emit(response);
   }
 
-  requestEmployee(employee:Employee){
-    this.fetchService.saveEmployee(employee).subscribe((response:EmployeesResponse)=>{
-      if(response.statusCode === 200){
-        window.location.reload();
-      }
-    })
+  checkTableReponse(response:FetchResponse<Employee>){
+    this.tableFormRefresh.emit(response);
   }
 
-  updateEmployee(employee:Employee){
-    this.fetchService.updateEmployee(employee,this.employee_id).subscribe((response:EmployeesResponse)=>{
-      if(response.statusCode === 200){
-        window.location.reload();
-      }
-    })
+  checkFormStatus(){
+    this.closeForm.emit();
   }
 
-  getEmployee(){
-    this.fetchService.getEmployee(this.employee_id).subscribe((response:EmployeesResponse)=>{
-      if(response.statusCode === 200){
-        this.firstName = response.employeeData![0].firstName;
-        this.lastName = response.employeeData![0].lastName;
-        this.selectedRole = response.employeeData![0].role;
-        this.selectedBranch = response.employeeData![0].branch.branch_id;
-      }
-    })
+  checkTableFormStatus(){
+    this.closeTableForm.emit();
   }
 
   submitForm(){
@@ -84,7 +83,7 @@ export class FormEmployeeComponent implements OnInit {
         "role":this.selectedRole,
         "branch":branchBody[0]
       }
-      this.requestEmployee(body);
+      this.saveEmployee(body);
     }
     if(this.type === "edit"){
       body = {
@@ -96,6 +95,69 @@ export class FormEmployeeComponent implements OnInit {
       }
       this.updateEmployee(body);
     }
+  }
+
+  getBranches(){
+    this.fetchService.getBranchList().subscribe((response:BranchResponse)=>{
+      if(response.statusCode === 200){
+        this.branchs = response.data!.flat(1);
+      }
+    })
+  }
+
+  saveEmployee(employee:Employee){
+    this.isLoadingSubject.next(true);    
+    this.appStateForm$ = this.fetchService.saveEmployee$(employee)
+      .pipe(
+        map(res=>{
+            this.saveSubject.next(res);
+            this.isLoadingSubject.next(false);
+            this.checkResponse(res);
+            this.checkFormStatus();
+            return {
+              dataState:Requeststatus.LOADED,
+              appData:this.saveSubject.value
+            }
+          }),
+          startWith({
+            dataState:Requeststatus.LOADING,
+            appData:this.saveSubject.value
+          }),
+          catchError((error:string)=>{
+            this.isLoadingSubject.next(false);
+            return of({
+              dataState:Requeststatus.ERROR,
+              error
+            })
+          })
+        )
+  }
+
+  updateEmployee(employee:Employee){
+    this.isLoadingSubject.next(true);
+    this.appStateForm$ = this.fetchService.updateEmployee$(employee,this.employee_id)
+      .pipe(
+        map(res =>{
+          this.saveSubject.next(res);this.isLoadingSubject.next(false);
+          this.checkTableReponse(res);
+          this.checkTableFormStatus();
+          return {
+            dataState:Requeststatus.LOADED,
+            appData:this.saveSubject.value
+          }          
+        }),
+        startWith({
+          dataState:Requeststatus.LOADING,
+          appData:this.saveSubject.value
+        }),
+        catchError((error:string)=>{
+          this.isLoadingSubject.next(false);
+          return of({
+            dataState:Requeststatus.ERROR,
+            error
+          })
+        })
+      )
   }
 
 }

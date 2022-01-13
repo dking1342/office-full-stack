@@ -96,7 +96,6 @@ public class AllImplement<ListType,RepoType> implements AllServices<ListType,Rep
                 customerRepository.deleteById(id);
                 return true;
             case "product":
-
                 productRepository.deleteById(id);
                 return true;
             case "supplier":

@@ -1,8 +1,11 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
+import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
+import { Requeststatus } from 'src/app/enums/requeststatus';
 import { Status } from 'src/app/enums/status';
+import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { Branch, BranchResponse } from 'src/types/general';
+import { Branch, FetchResponse, responseContent } from 'src/types/general';
 
 @Component({
   selector: 'app-form-branch',
@@ -11,10 +14,24 @@ import { Branch, BranchResponse } from 'src/types/general';
 })
 export class FormBranchComponent implements OnInit {
   @Input() type = "";
-  location: string = "";
-  selectedStatus: string = "";
-  statuses: Status[] = [Status.OPEN,Status.CLOSED];
+  @Input() data:Appstate<FetchResponse<Branch>> = {dataState:Requeststatus.LOADED,appData:{}};
+
+  @Output() closeForm = new EventEmitter();
+  @Output() refreshForm = new EventEmitter<FetchResponse<Branch>>();
+
+  formState:Branch = {
+    branch_id:"",
+    location:"",
+    branchStatus:""
+  }
+  locationStatus: Status[] = [];
   b_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
+
+  appStateForm$!: Observable<Appstate<FetchResponse<Branch>>>;
+  saveSubject = new BehaviorSubject<FetchResponse<Branch>>(responseContent);
+  isLoadingSubject = new BehaviorSubject<boolean>(false);
+  isLoading$ = this.isLoadingSubject.asObservable();
+  readonly DataState = Requeststatus;
 
   constructor(
     private router: Router,
@@ -23,54 +40,81 @@ export class FormBranchComponent implements OnInit {
 
   ngOnInit(): void {
     if(this.type === "edit"){
-      this.getBranch();
+      this.formState.location = this.data.appData!.data![0].location;
+      this.formState.branchStatus = this.data.appData!.data![0].branchStatus;
     }
-
+    Object.values(Status).map(v=> this.locationStatus.push(v));
   }
 
   submitForm(){
-    let body: Branch;
     if(this.type === "save"){
-      body = {
-        branch_id:"",
-        location:this.location.toUpperCase(),
-        branchStatus: this.selectedStatus
+      this.formState = {
+        ...this.formState,
+        location:this.formState.location.toUpperCase()
       }
-      this.saveBranch(body);
+      this.saveBranch(this.formState);
     }
     if(this.type === "edit"){
-      body = {
-        branch_id: this.b_id,
-        location:this.location.toUpperCase(),
-        branchStatus:this.selectedStatus
+      this.formState = {
+        ...this.formState,
+        branch_id:this.b_id
       }
-      this.updateBranch(body);
+      this.updateBranch(this.formState,this.b_id);
     }
-  }
-
-  getBranch(){
-    this.fetchService.getBranch(this.b_id).subscribe((response:BranchResponse)=>{
-      if(response.statusCode === 200){
-        this.location = response.branchData![0].location;
-        this.selectedStatus = response.branchData![0].branchStatus;
-      }
-    })
   }
 
   saveBranch(branch:Branch){
-    this.fetchService.saveBranch(branch).subscribe((response:BranchResponse)=>{
-      if(response.statusCode === 200){
-        window.location.reload();
-      }
-    })
+    this.isLoadingSubject.next(true);
+    this.appStateForm$ = this.fetchService.saveBranch$(branch)
+      .pipe(
+        map(res=>{
+          this.saveSubject.next(res);
+          this.isLoadingSubject.next(false);
+          this.closeForm.emit();
+          this.refreshForm.emit(res);
+          return {
+            dataState:Requeststatus.LOADED,
+            appData:this.saveSubject.value
+          }
+        }),
+        startWith({
+          dataState:Requeststatus.LOADING
+        }),
+        catchError((error:string)=>{
+          this.isLoadingSubject.next(false);
+          return of({
+            dataState:Requeststatus.ERROR,
+            error
+          })
+        })
+      )
   }
 
-  updateBranch(branch:Branch){
-    this.fetchService.updateBranch(branch,this.b_id).subscribe((response:BranchResponse)=>{
-      if(response.statusCode === 200){
-        window.location.reload();
-      }
-    })
+  updateBranch(branch:Branch,id:string){
+    this.isLoadingSubject.next(true);
+    this.appStateForm$ = this.fetchService.updateBranch$(branch,id)
+      .pipe(
+        map(res=>{
+          this.saveSubject.next(res);
+          this.isLoadingSubject.next(false);
+          this.closeForm.emit();
+          this.refreshForm.emit(res);
+          return {
+            dataState:Requeststatus.LOADED,
+            appData:this.saveSubject.value
+          }
+        }),
+        startWith({
+          dataState:Requeststatus.LOADING
+        }),
+        catchError((error:string)=>{
+          this.isLoadingSubject.next(false);
+          return of({
+            dataState:Requeststatus.ERROR,
+            error
+          })
+        })
+      )
   }
 
 

@@ -46,7 +46,7 @@ export class TransactionComponent implements OnInit {
           let e:Employee[]=[];
           this.fetchService.getEmployee(item.employee_id).subscribe((res:EmployeesResponse)=>{
             if(res.statusCode === 200){
-              e.push(res.employeeData!.flat(1)[0]);
+              e.push(res.data!.flat(1)[0]);
             }
           })
 

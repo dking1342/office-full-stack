@@ -189,7 +189,7 @@ export class FormTransactionsComponent implements OnInit {
   getEmployeeList(){
     this.fetchService.getEmployeeList().subscribe((response:EmployeesResponse)=>{
       if(response.statusCode === 200){
-        this.employees = response.employeeData!.flat(1);
+        this.employees = response.data!.flat(1);
       }
     })
   }

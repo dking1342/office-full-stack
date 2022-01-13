@@ -6,10 +6,8 @@ import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { EmployeesComponent } from './components/employees/employees.component';
-import { EmployeeComponent } from './components/employee/employee.component';
 import { FormEmployeeComponent } from './components/form-employee/form-employee.component';
 import { BranchesComponent } from './components/branches/branches.component';
-import { BranchComponent } from './components/branch/branch.component';
 import { FormBranchComponent } from './components/form-branch/form-branch.component';
 import { CustomersComponent } from './components/customers/customers.component';
 import { CustomerComponent } from './components/customer/customer.component';
@@ -28,15 +26,14 @@ import { TransactionsComponent } from './components/transactions/transactions.co
 import { FormTransactionsComponent } from './components/form-transactions/form-transactions.component';
 import { TransactionComponent } from './components/transaction/transaction.component';
 import { ErrorHandlerComponent } from './components/error-handler/error-handler.component';
+import { TableEmployeesComponent } from './components/table-employees/table-employees.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     EmployeesComponent,
-    EmployeeComponent,
     FormEmployeeComponent,
     BranchesComponent,
-    BranchComponent,
     FormBranchComponent,
     CustomersComponent,
     CustomerComponent,
@@ -54,7 +51,8 @@ import { ErrorHandlerComponent } from './components/error-handler/error-handler.
     TransactionsComponent,
     FormTransactionsComponent,
     TransactionComponent,
-    ErrorHandlerComponent
+    ErrorHandlerComponent,
+    TableEmployeesComponent
   ],
   imports: [
     BrowserModule,

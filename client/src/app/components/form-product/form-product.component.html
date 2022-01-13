@@ -1,7 +1,19 @@
+<ng-container *ngIf="(appStateForm$ | async) as appStateForm" [ngSwitch]="appStateForm.dataState">
+    <ng-container *ngSwitchCase="DataState.LOADING">
+        loading...
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.LOADED">
+        loaded data
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.ERROR">
+        {{appStateForm.error}}
+    </ng-container>
+</ng-container>
+
 <form>
     <div>
         <label for="product_name">Name</label>
-        <input type="text" name="product_name" [(ngModel)]="product_name" required>
+        <input type="text" name="product_name" [(ngModel)]="formState.pname" required>
     </div>
     <div>
         <button (click)="submitForm()">Submit</button>

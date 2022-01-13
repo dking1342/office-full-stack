@@ -1,7 +1,7 @@
 package com.example.employees.controllers;
 
+import com.example.employees.models.responses.BranchResponse;
 import com.example.employees.models.schemas.Branch;
-import com.example.employees.models.responses.Response;
 import com.example.employees.repository.BranchRepository;
 import com.example.employees.services.implementations.AllImplement;
 import com.example.employees.services.implementations.BranchImplement;
@@ -22,53 +22,53 @@ public class BranchController {
     private final BranchImplement branchImplement;
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<Response> getBranch(@PathVariable("id") UUID id) throws Exception {
+    public ResponseEntity<BranchResponse> getBranch(@PathVariable("id") UUID id) throws Exception {
         return ResponseEntity.ok(
-                Response.builder()
+                BranchResponse.builder()
                         .timestamp(LocalDateTime.now())
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .message("Fetched branch")
-                        .branchData(allImplement.get(id,"branch"))
+                        .data(allImplement.get(id,"branch"))
                         .build()
         );
     }
 
     @GetMapping("/list")
-    public ResponseEntity<Response> getBranches() throws Exception {
+    public ResponseEntity<BranchResponse> getBranches() throws Exception {
         return ResponseEntity.ok(
-                Response.builder()
+                BranchResponse.builder()
                         .timestamp(LocalDateTime.now())
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .message("Fetched all branches")
-                        .branchData(allImplement.list(10,"branch"))
+                        .data(allImplement.list(10,"branch"))
                         .build()
         );
     }
 
     @PostMapping("/save")
-    public ResponseEntity<Response> saveBranch(@RequestBody Branch branch) throws Exception {
+    public ResponseEntity<BranchResponse> saveBranch(@RequestBody Branch branch) throws Exception {
         return ResponseEntity.ok(
-                Response.builder()
+                BranchResponse.builder()
                         .timestamp(LocalDateTime.now())
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .message("Saved branch")
-                        .branchData(branchImplement.create(branch))
+                        .data(branchImplement.create(branch))
                         .build()
         );
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Response> updateBranch(@PathVariable("id") UUID id, @RequestBody Branch branch) throws Exception {
+    public ResponseEntity<BranchResponse> updateBranch(@PathVariable("id") UUID id, @RequestBody Branch branch) throws Exception {
         return ResponseEntity.ok(
-                Response.builder()
+                BranchResponse.builder()
                         .timestamp(LocalDateTime.now())
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .message("Updated branch")
-                        .branchData(branchImplement.update(id,branch))
+                        .data(branchImplement.update(id,branch))
                         .build()
         );
     }

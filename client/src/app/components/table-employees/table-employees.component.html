@@ -1,0 +1,46 @@
+<ng-container *ngIf="(appStateTable$ | async) as appStateTable" [ngSwitch]="appStateTable.dataState">
+    <ng-container *ngSwitchCase="DataState.LOADING">
+        loading
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.LOADED">
+        loaded successfully
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.ERROR">
+        {{appStateTable.error}}
+    </ng-container>
+</ng-container>
+<ng-container>
+    <table>
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Role</th>
+                <th>Branch</th>
+                <th *ngIf="isAll">Info</th>
+                <th *ngIf="!isAll">Edit</th>
+                <th *ngIf="!isAll">Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let employee of (appState.appData?.data || [])">
+                <td>{{employee.firstName}}</td>
+                <td>{{employee.lastName}}</td>
+                <td>{{employee.role.slice(0,1) + employee.role.slice(1).toLowerCase()}}</td>
+                <td>{{employee.branch.location.slice(0,1) + employee.branch.location.toLowerCase().slice(1)}}</td>
+                <td *ngIf="isAll"><button (click)="getInfo(employee.id)">Info</button></td>
+                <td *ngIf="!isAll"><button (click)="showForm = !showForm">Edit</button></td>
+                <td *ngIf="!isAll"><button (click)="deleteEmployee(employee.id)">Delete</button></td>
+            </tr>
+        </tbody>    
+    </table>
+</ng-container>
+<ng-container *ngIf="showForm">
+    <h3>Edit Employee</h3>
+    <app-form-employee 
+        [type]="type" 
+        [appState]="appState"
+        (closeTableForm)="closeTableFormAction()"
+        (tableFormRefresh)="tableRefreshToEmployees($event)"
+    ></app-form-employee>
+</ng-container>

@@ -1,7 +1,10 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
+import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
+import { Requeststatus } from 'src/app/enums/requeststatus';
+import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { Customer, CustomerResponse } from 'src/types/general';
+import { Customer, FetchResponse, responseContent } from 'src/types/general';
 
 @Component({
   selector: 'app-form-customer',
@@ -10,8 +13,22 @@ import { Customer, CustomerResponse } from 'src/types/general';
 })
 export class FormCustomerComponent implements OnInit {
   @Input() type = "";
-  customer_name:string = "";
+  @Input() data:Appstate<FetchResponse<Customer>> = {dataState:Requeststatus.LOADED,appData:{}};
+
+  @Output() closeForm = new EventEmitter();
+  @Output() refreshForm = new EventEmitter<FetchResponse<Customer>>();
+
+  formState:Customer = {
+    customer_id:"",
+    cname:""
+  }
   c_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
+
+  appStateForm$!: Observable<Appstate<FetchResponse<Customer>>>;
+  saveSubject = new BehaviorSubject<FetchResponse<Customer>>(responseContent);
+  isLoadingSubject = new BehaviorSubject<boolean>(false);
+  isLoading$ = this.isLoadingSubject.asObservable();
+  readonly DataState = Requeststatus;
 
   constructor(
     private router: Router,
@@ -20,50 +37,76 @@ export class FormCustomerComponent implements OnInit {
 
   ngOnInit(): void {
     if(this.type === "edit"){
-      this.getCustomer(this.c_id);
+      this.formState.cname = this.data.appData!.data![0].cname;
     }
   }
 
   submitForm(){
-    let body:Customer;
     if(this.type === "save"){
-      body = {
-        "customer_id":"",
-        "cname":this.customer_name
-      }
-      this.saveCustomer(body);
+      console.log(this.formState);
+      this.saveCustomer(this.formState);
     }
     if(this.type === "edit"){
-      body = {
-        "customer_id":this.c_id,
-        "cname":this.customer_name
+      this.formState = {
+        ...this.formState,
+        customer_id:this.c_id
       }
-      this.updateCustomer(body);
+      this.updateCustomer(this.formState,this.c_id);
     }
-  }
-
-  getCustomer(id:string){
-    this.fetchService.getCustomer(id).subscribe((response:CustomerResponse)=>{
-      if(response.statusCode === 200){
-        this.customer_name = response.data![0].cname;
-      }
-    })
   }
 
   saveCustomer(customer:Customer){
-    this.fetchService.saveCustomer(customer).subscribe((response:CustomerResponse)=>{
-      if(response.statusCode === 200){
-        window.location.reload();
-      }
-    })
+    this.isLoadingSubject.next(true);
+    this.appStateForm$ = this.fetchService.saveCustomer$(customer)
+      .pipe(
+        map(res=>{
+          this.saveSubject.next(res);
+          this.isLoadingSubject.next(false);
+          this.closeForm.emit();
+          this.refreshForm.emit(res);
+          return {
+            dataState:Requeststatus.LOADED,
+            appData:this.saveSubject.value
+          }
+        }),
+        startWith({
+          dataState:Requeststatus.LOADING
+        }),
+        catchError((error:string)=>{
+          this.isLoadingSubject.next(false);
+          return of({
+            dataState:Requeststatus.ERROR,
+            error
+          })
+        })
+      )
   }
 
-  updateCustomer(customer:Customer){
-    this.fetchService.updateCustomer(customer,this.c_id).subscribe((response:CustomerResponse)=>{
-      if(response.statusCode === 200){
-        window.location.reload();
-      }
-    })
+  updateCustomer(customer:Customer,id:string){
+    this.isLoadingSubject.next(true);
+    this.appStateForm$ = this.fetchService.updateCustomer$(customer,id)
+      .pipe(
+        map(res=>{
+          this.saveSubject.next(res);
+          this.isLoadingSubject.next(false);
+          this.closeForm.emit();
+          this.refreshForm.emit(res);
+          return {
+            dataState:Requeststatus.LOADED,
+            appData:this.saveSubject.value
+          }
+        }),
+        startWith({
+          dataState:Requeststatus.LOADING
+        }),
+        catchError((error:string)=>{
+          this.isLoadingSubject.next(false);
+          return of({
+            dataState:Requeststatus.ERROR,
+            error
+          })
+        })
+      )
   }
 
 }
