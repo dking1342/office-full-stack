@@ -22,34 +22,6 @@ export interface FetchResponse<T> {
     boolData?: boolean
 }
 
-export interface Category {
-    id: string,
-    firstName?: string,
-    lastName?: string,
-    role?: string,
-    branch?: Branch,
-    branch_id?: string,
-    location?: string, 
-    branchStatus?: string,
-    customer_id?:string,
-    cname?:string,
-    product_id?:string,
-    pname?:string,
-    supplier_id?:string,
-    sname?:string,
-    products?:Product[],
-    inventory_id?:string,
-    product?:Product,
-    quantity?:number,
-    transaction_id?:string,
-    employee_id?:string,
-    customer_id_trans?:string | null,
-    supplier_id_trans?:string | null,
-    product_id_trans?:string,
-    transactionType?:string,
-    transaction_quantity?:number
-}
-
 export interface EmployeesResponse {
     timestamp?: Date,
     HttpStatus?: string,
@@ -203,4 +175,10 @@ export interface TransactionArray {
     product:Product[],
     transactionType:string,
     transaction_quantity:number
+}
+
+export interface ProductCheckBox {
+    product_id:string,
+    pname:string,
+    isChecked:boolean
 }

@@ -1,29 +1,67 @@
-<div>
-    <!-- error -->
-</div>
-<h1>Suppliers <span><button (click)="showForm()">Add</button></span></h1>
-<app-form-supplier *ngIf="showAddForm" [type]="formType"></app-form-supplier>
-<table>
-    <thead>
-        <tr>
-            <th style="border-bottom: 1.5px black solid;">Name</th>
-            <th style="border-bottom: 1.5px black solid;">Supplier Info</th>
-            <th style="border-bottom: 1.5px black solid;">Quantity</th>
-            <th style="padding:0px 15px;border-bottom: 1.5px black solid;">List</th>
-            <th style="border-bottom: 1.5px black solid;">Product Info</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let supplier of suppliers">
-            <td style=" margin:5px 0px;">{{supplier.sname}}</td>
-            <td style="margin:5px 0px;border-right: 1.5px solid black;padding-right:5px; text-align: center;"><button (click)="getInfo(supplier.supplier_id)">Info</button></td>
-            <td style="text-align: center;margin:5px 0px;">{{supplier.products.length}}</td>
-            <td style="padding:0px 15px;margin:5px 0px;">
-                <tr *ngFor="let p of supplier.products; let i = index" >
-                    <td style="padding:5px 0px;">{{i + 1}}- {{p.pname}}</td>
+<ng-container *ngIf="(appState$ | async) as appState" [ngSwitch]="appState.dataState">
+    <ng-container *ngSwitchCase="DataState.LOADING">
+        loading...
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.LOADED">
+        <h1>
+            {{title}} 
+            <span *ngIf="isAll">
+                <button (click)="showAddForm = !showAddForm">Add</button>
+            </span>
+        </h1>
+        <app-form-supplier 
+            *ngIf="showAddForm" 
+            [type]="formType"
+            (closeForm)="closeAddForm()"
+            (refreshForm)="refreshSupplierView($event)"
+        ></app-form-supplier>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="border-bottom: 1.5px black solid;">Name</th>
+                    <th style="border-bottom: 1.5px black solid;">Quantity</th>
+                    <th style="padding:0px 15px;border-bottom: 1.5px black solid;">List</th>
+                    <th *ngIf="isAll" style="border-bottom: 1.5px black solid;">Info</th>
+                    <th *ngIf="!isAll" style="border-bottom: 1.5px black solid;">Edit</th>
+                    <th *ngIf="!isAll" style="border-bottom: 1.5px black solid;">Delete</th>
                 </tr>
-            </td>
-            <td style="margin:5px 0px;text-align: center;"><button (click)="getProductInfo(supplier.supplier_id)">Info</button></td>
-        </tr>
-    </tbody>    
-</table>
+            </thead>
+            <tbody>
+                <tr *ngFor="let supplier of (appState.appData?.data || [])">
+                    <td style=" margin:5px 0px;">{{supplier.sname}}</td>
+                    <td style="text-align: center;margin:5px 0px;">{{supplier.products.length}}</td>
+                    <td style="padding:0px 15px;margin:5px 0px;">
+                        <tr *ngFor="let p of supplier.products; let i = index" >
+                            <td style="padding:5px 0px;">{{i + 1}}- {{p.pname}}</td>
+                        </tr>
+                    </td>
+                    <td *ngIf="isAll" style="margin:5px 0px;padding-right:5px; text-align: center;">
+                        <button (click)="getInfo(supplier.supplier_id)">Info</button>
+                    </td>
+                    <td *ngIf="!isAll" style="margin:5px 0px;text-align: center;">
+                        <button (click)="showEditForm = !showEditForm">Edit</button>
+                    </td>
+                    <td *ngIf="!isAll" style="margin:5px 0px;text-align: center;">
+                        <button (click)="deleteSupplier(supplier.supplier_id)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>    
+        </table>        
+
+        <ng-container *ngIf="showEditForm">
+            <h3>Edit {{title}}</h3>
+            <app-form-supplier
+                [type]="formType"
+                [data]="appState"
+                (closeForm)="closeEditForm()"
+                (refreshForm)="refreshSupplierView($event)"
+            ></app-form-supplier>
+        </ng-container>
+
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.ERROR">
+        {{appState.error}}
+    </ng-container>
+</ng-container>
+

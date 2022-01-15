@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, tap, throwError } from 'rxjs';
-import { EmployeesResponse, Employee, BranchResponse, Branch, CustomerResponse, Customer, ProductResponse, Product, SupplierResponse, Supplier, SupplierProductResponse, InventoryResponse, TransactionResponse, Transaction, FetchResponse } from 'src/types/general';
+import { EmployeesResponse, Employee, BranchResponse, Branch, CustomerResponse, Customer, ProductResponse, Product, SupplierResponse, Supplier, SupplierProductResponse, InventoryResponse, TransactionResponse, Transaction, FetchResponse, Inventory } from 'src/types/general';
 
 @Injectable({
   providedIn: 'root'
@@ -112,6 +112,42 @@ export class FetchService {
       tap(console.log),
       catchError(this.handleError)
     );
+
+  getSuppliers$ = (url:string) => <Observable<FetchResponse<Supplier>>>this.http
+    .get<FetchResponse<Supplier>>(`${this.apiEndpoint}/${url}`)
+    .pipe(
+      tap(console.log),
+      catchError(this.handleError)
+    );
+
+  saveSupplier$ = (supplier:Supplier) => <Observable<FetchResponse<Supplier>>>this.http
+    .post<FetchResponse<Supplier>>(`${this.apiEndpoint}/suppliers/save`,supplier)
+    .pipe(
+      tap(console.log),
+      catchError(this.handleError)
+    );
+
+  updateSupplier$ = (supplier:Supplier,id:string) => <Observable<FetchResponse<Supplier>>>this.http
+    .put<FetchResponse<Supplier>>(`${this.apiEndpoint}/suppliers/update/${id}`,supplier)
+    .pipe(
+      tap(console.log),
+      catchError(this.handleError)
+    );
+
+  deleteSupplier$ = (id:string) => <Observable<FetchResponse<Supplier>>>this.http
+    .delete<FetchResponse<Supplier>>(`${this.apiEndpoint}/suppliers/delete/${id}`)
+    .pipe(
+      tap(console.log),
+      catchError(this.handleError)
+    );
+
+  getInventory$ = <Observable<FetchResponse<Inventory>>>this.http
+    .get<FetchResponse<Inventory>>(`${this.apiEndpoint}/inventory/list`)
+    .pipe(
+      tap(console.log),
+      catchError(this.handleError)
+    );
+
 
 
   private handleError(handleError:HttpErrorResponse):Observable<never>{

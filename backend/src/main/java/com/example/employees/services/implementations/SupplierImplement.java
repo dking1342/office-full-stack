@@ -59,10 +59,11 @@ public class SupplierImplement implements SupplierService {
         if(optionalSupplier.isPresent()){
             if(supplier.getSname().isEmpty()){
                 updatedSupplier.setSname(optionalSupplier.get().getSname());
+                updatedSupplier.setProducts(optionalSupplier.get().getProducts());
             } else {
                 updatedSupplier.setSname(supplier.getSname());
+                updatedSupplier.setProducts(supplier.getProducts());
             }
-            updatedSupplier.setProducts(optionalSupplier.get().getProducts());
             Supplier savedSupplier = supplierRepository.save(updatedSupplier);
             ArrayList<Supplier> responseSupplier = new ArrayList<>();
             responseSupplier.add(savedSupplier);

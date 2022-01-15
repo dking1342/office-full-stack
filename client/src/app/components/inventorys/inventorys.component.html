@@ -1,28 +1,48 @@
-<div>
-    <!-- error -->
-</div>
-<h1>Inventory 
-    <span><button (click)="showFilter()">Filter</button></span>
-    <span><button (click)="resetList()">Reset</button></span>
-</h1>
-<app-form-inventory *ngIf="showFilterForm" [type]="formType" [list]="inventory" (filterUpdate)="addFilterItem($event)"></app-form-inventory>
-<table>
-    <thead>
-        <tr>
-            <th>Product</th>
-            <th>Quantity</th>
-        </tr>
-    </thead>
-    <tbody *ngIf="!filteredList.length">
-        <tr *ngFor="let inv of inventory" >
-            <td>{{inv.product.pname}}</td>
-            <td>{{inv.quantity}}</td>
-        </tr>
-    </tbody> 
-    <tbody *ngIf="filteredList.length">
-        <tr *ngFor="let finv of filteredList">
-            <td>{{finv.product.pname}}</td>
-            <td>{{finv.quantity}}</td>
-        </tr>
-    </tbody>   
-</table>
+<ng-container *ngIf="{appState: appState$ | async, dataSubject: dataSubject$ | async, refreshDataSubject: refreshDataSubject$ | async} as o" >
+    <ng-container *ngIf="o.appState && o.dataSubject && o.refreshDataSubject" [ngSwitch]="o.appState.dataState">
+        <ng-container *ngSwitchCase="DataState.LOADING">
+            loading...
+        </ng-container>
+        <ng-container *ngSwitchCase="DataState.LOADED">
+            <div>
+                <h1>Inventory </h1>
+                <button (click)="showFilterForm = !showFilterForm">Filter</button>
+                <form *ngIf="showFilterForm">
+                    <select 
+                        name="product" 
+                        (change)="filterInput($event)"
+                    >
+                        <option value="all">All</option>
+                        <option 
+                            *ngFor="let product of (o.dataSubject || [])" 
+                            [value]="product.product.product_id"
+                        >
+                            {{product.product.pname}}
+                        </option>
+                    </select>
+                </form>
+            </div>
+    
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product <span><button (click)="sortInventoryColumn()">Sort</button></span></th>
+                        <th>Quantity <span><button (click)="sortQuantityColumn()">Sort</button></span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let inv of (o.refreshDataSubject || [])" >
+                        <td>{{inv.product.pname}}</td>
+                        <td>{{inv.quantity}}</td>
+                    </tr>
+                </tbody>  
+            </table>
+    
+        </ng-container>
+        <ng-container *ngSwitchCase="DataState.ERROR">
+            {{o.appState.error}}
+        </ng-container>
+        
+    </ng-container>
+
+</ng-container>

@@ -1,9 +1,36 @@
-<form>
-    <div>
-        <label for="supplier_name">Name</label>
-        <input type="text" name="supplier_name" [(ngModel)]="supplier_name" required>
-    </div>
-    <div>
-        <button (click)="submitForm()">Submit</button>
-    </div>
-</form>
+<ng-container *ngIf="(appStateForm$ | async)">
+    done
+</ng-container>
+
+<ng-container *ngIf="{a:appStateProduct$ | async,b:productList$ | async} as o">
+    <ng-container *ngIf="o.a && o.b">
+        <form>
+            <div>
+                <label for="sname">Name</label>
+                <input 
+                    type="text" 
+                    name="sname"
+                    [(ngModel)]="formState.sname"
+                    required
+                >
+            </div>
+            <div>
+                <div for="supplier_products">Products:</div>
+                <div *ngFor="let product of o.b">
+                    <input 
+                        type="checkbox" 
+                        name="product"
+                        [checked]="product.isChecked"
+                        (change)="checkedBox(product,$event)"
+                    >
+                    <label 
+                        [for]="product.pname"
+                    >{{product.pname}}</label>
+                </div>
+            </div>
+            <div>
+                <button (click)="submitForm()">Submit</button>
+            </div>
+        </form>
+    </ng-container>
+</ng-container>

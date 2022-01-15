@@ -6,7 +6,6 @@ import { EmployeesComponent } from './components/employees/employees.component';
 import { InventorysComponent } from './components/inventorys/inventorys.component';
 import { ProductsComponent } from './components/products/products.component';
 import { SupplierProductsComponent } from './components/supplier-products/supplier-products.component';
-import { SupplierComponent } from './components/supplier/supplier.component';
 import { SuppliersComponent } from './components/suppliers/suppliers.component';
 import { TransactionComponent } from './components/transaction/transaction.component';
 import { TransactionsComponent } from './components/transactions/transactions.component';
@@ -49,8 +48,8 @@ const routes: Routes = [
     component:SuppliersComponent
   },
   {
-    path:"supplier/:id",
-    component:SupplierComponent
+    path:"suppliers/:id",
+    component:SuppliersComponent
   },
   {
     path:"supplier/product/:id",
