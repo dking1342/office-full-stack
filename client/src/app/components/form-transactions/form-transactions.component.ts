@@ -1,8 +1,12 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
+import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
+import { Requeststatus } from 'src/app/enums/requeststatus';
 import { TransactionTypes } from 'src/app/enums/transaction';
+import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { Employee, Customer, Supplier, Product, Transaction, EmployeesResponse, CustomerResponse, ProductResponse, SupplierResponse, TransactionResponse } from 'src/types/general';
+import { Customer, Employee, FetchResponse, Product, responseContent, Supplier, Transaction } from 'src/types/general';
 
 @Component({
   selector: 'app-form-transactions',
@@ -11,209 +15,210 @@ import { Employee, Customer, Supplier, Product, Transaction, EmployeesResponse, 
 })
 export class FormTransactionsComponent implements OnInit {
   @Input() type = "";
-  @Input() data:any = [];
+  @Input() data:Appstate<FetchResponse<Transaction>> = {dataState:Requeststatus.LOADED,appData:{}};
   @Input() supplierData:Supplier[] = [];
-  selectedEmployee:string = "";
-  selectedCustomer:string = "";
-  selectedSupplier:string = "";
-  selectedProduct:string = "";
-  selectedType:string = "";
-  transactionQuantity = 1;
-  employees:Employee[] = [];
-  customers:Customer[] = [];
-  suppliers:Supplier[] = [];
-  filteredSuppliers:Supplier[]=[];
-  products:Product[] = [];
-  types:String[] = [];
-  hasSelectedEmployee = false;
-  hasSelectedProduct = false;
-  hasSelectedType = false;
-  hasSelectedBuy = false;
-  hasSelectedSell = false;
-  hasSelectedCompany = false;
-  hasSelected = false;
-  t_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
-  hasError:boolean = false;
-  errorMsg:string = "";
 
+  @Output() closeForm = new EventEmitter<void>();
+  @Output() refreshForm = new EventEmitter<FetchResponse<Transaction>>();
+
+  formState:Transaction = {
+    transaction_id:"",
+    employee:{id:"",firstName:"",lastName:"",role:"",branch:{branch_id:"",location:"",branchStatus:""}},
+    supplier:{supplier_id:"",sname:"",products:[]},
+    product:{product_id:"",pname:""},
+    customer:{customer_id:"",cname:""},
+    transactionType:"",
+    transaction_quantity:0
+  }
+  transaction_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
+
+  appStateForm$!: Observable<Appstate<FetchResponse<Transaction>>>;
+  saveSubject = new BehaviorSubject<FetchResponse<Transaction>>(responseContent);
+  isLoadingSubject = new BehaviorSubject<boolean>(false);
+  isLoading$ = this.isLoadingSubject.asObservable();
+  readonly DataState = Requeststatus;
+  employees = new BehaviorSubject<Employee[]>([]);
+  employees$ = this.employees.asObservable();
+  customers = new BehaviorSubject<Customer[]>([]);
+  customers$ = this.customers.asObservable();
+  suppliers = new BehaviorSubject<Supplier[]>([]);
+  suppliers$ = this.suppliers.asObservable();
+  products = new BehaviorSubject<Product[]>([]);
+  products$ = this.products.asObservable();
+  types:String[] = [];
+
+  
   constructor(
     private fetchService:FetchService,
-    private router: Router
-  ) { }
-
-  ngOnInit(): void {
+    private router: Router,
+    private formbuilder:FormBuilder,
+    ) { }
+    
+    
+    ngOnInit(): void {
     if(this.type === "save"){
-      this.getEmployeeList();
-      this.getSupplierList();
-      this.getCustomerList();
-      this.getProductList();
+      this.getEmployees();
+      this.getProducts();
+      this.getSuppliers();
+      this.getCustomers();
+
     }
     if(this.type === "edit"){
-      this.getEmployeeList();
-      this.getCustomerList();
-      this.getProductList();
-
-      this.hasSelectedEmployee = true;
-      this.hasSelectedProduct = true;
-      this.hasSelectedType = true;
-      this.data[0].transactionType === "BUY" ? this.hasSelectedBuy = true : this.hasSelectedSell = true;
-      this.hasSelectedCompany = true;
-
-      this.selectedEmployee = this.data[0].employee[0].id;
-      this.selectedProduct = this.data[0].product[0].product_id;
-      this.selectedType = this.data[0].transactionType;
-      
-      // check suppliers
-      this.filteredSuppliers = [];
-      this.supplierData.forEach(item=>{
-        item.products.forEach(prod=>{
-          if(prod.product_id === this.selectedProduct){
-            this.filteredSuppliers.push(item);
-          } 
-        })
-      });
-      this.selectedSupplier = this.data[0].supplier[0].supplier_id;
-      this.selectedCustomer = this.data[0].customer[0].customer_id;
-      this.transactionQuantity = this.data[0].transaction_quantity;
+      this.formState.transaction_id = this.transaction_id;
+      this.formState.employee = this.data.appData!.data![0].employee;
+      this.formState.product = this.data.appData!.data![0].product;
+      this.formState.transactionType = this.data.appData!.data![0].transactionType;
+      this.formState.supplier = this.data.appData!.data![0].supplier;
+      this.formState.customer = this.data.appData!.data![0].customer;
+      this.formState.transaction_quantity = this.data.appData!.data![0].transaction_quantity;
+      this.getEmployees();
+      this.getProducts();
+      this.getSuppliers();
+      this.getCustomers();
     }
     this.types.push(TransactionTypes.BUY);
     this.types.push(TransactionTypes.SELL);
   }
 
   submitForm(){
-    let body:Transaction;
-    if(this.type === "save" && this.selectedType === "BUY"){
-      body = {
-        transaction_id:"",
-        employee_id:this.selectedEmployee,
-        supplier_id:this.selectedSupplier,
-        product_id:this.selectedProduct,
-        customer_id:null,
-        transactionType:this.selectedType,
-        transaction_quantity:this.transactionQuantity
+    if(this.formState.transactionType === "BUY"){
+      this.formState = {
+        ...this.formState,
+        customer:null
       }
-      this.saveTransaction(body);
     }
-    if(this.type === "save" && this.selectedType === "SELL"){
-      body = {
-        transaction_id:"",
-        employee_id:this.selectedEmployee,
-        supplier_id:null,
-        product_id:this.selectedProduct,
-        customer_id:this.selectedCustomer,
-        transactionType:this.selectedType,
-        transaction_quantity:this.transactionQuantity
+    if(this.formState.transactionType === "SELL"){
+      this.formState = {
+        ...this.formState,
+        supplier:null
       }
-      this.saveTransaction(body);
     }
-    if(this.type === "edit" && this.selectedType === "BUY"){
-      body = {
-        transaction_id:this.t_id,
-        employee_id:this.selectedEmployee,
-        supplier_id:this.selectedSupplier,
-        product_id:this.selectedProduct,
-        customer_id:null,
-        transactionType:this.selectedType,
-        transaction_quantity:this.transactionQuantity
-      }
-      console.log(body);
-      console.log(this.transactionQuantity);
-      this.updateTransaction(body,this.t_id);
+    if(this.type === "save"){
+      this.saveTransaction(this.formState);
     }
-    if(this.type === "edit" && this.selectedType === "SELL"){
-      body = {
-        transaction_id:this.t_id,
-        employee_id:this.selectedEmployee,
-        supplier_id:null,
-        product_id:this.selectedProduct,
-        customer_id:this.selectedCustomer,
-        transactionType:this.selectedType,
-        transaction_quantity:this.transactionQuantity
-      }
-      this.updateTransaction(body,this.t_id);
+    if(this.type === "edit"){
+      this.updateTransaction(this.formState,this.transaction_id);
     }
+
   }
 
   saveTransaction(transaction:Transaction){
-    this.fetchService.saveTransaction(transaction).subscribe((response:TransactionResponse)=>{
-      if(response.statusCode === 200){
-        window.location.reload();
-      } 
-    },error =>{
-      console.log(error);
-      this.hasError = true;
-      this.errorMsg = "An error has happened. Please try again.";
-    })
+    this.isLoadingSubject.next(true);
+    this.appStateForm$ = this.fetchService.saveTransaction$(transaction)
+      .pipe(
+        map(res=>{
+          this.isLoadingSubject.next(false);
+          this.closeForm.emit();
+          this.refreshForm.emit(res);
+          return {
+            dataState:Requeststatus.LOADED,
+            appData:{
+              ...res,
+              data:res.data!.flat(1)
+            }
+          }
+        }),
+        startWith({
+          dataState:Requeststatus.LOADING
+        }),
+        catchError((error:string)=>{
+          this.isLoadingSubject.next(false);
+          return of({
+            dataState:Requeststatus.ERROR,
+            error
+          })
+        })
+      )
   }
 
   updateTransaction(transaction:Transaction,id:string){
-    this.fetchService.updateTransaction(transaction,id).subscribe((response:TransactionResponse)=>{
-      if(response.statusCode === 200){
-        window.location.reload();
-      }
-    })
+    this.isLoadingSubject.next(true);
+    this.appStateForm$ = this.fetchService.updateTransaction$(transaction,id)
+      .pipe(
+        map(res=>{
+          this.isLoadingSubject.next(false);
+          this.closeForm.emit();
+          this.refreshForm.emit(res);
+          return {
+            dataState:Requeststatus.LOADED,
+            appData:{
+              ...res,
+              data:res.data!.flat(1)
+            }
+          }
+        }),
+        startWith({
+          dataState:Requeststatus.LOADING
+        }),
+        catchError((error:string)=>{
+          this.isLoadingSubject.next(false);
+          return of({
+            dataState:Requeststatus.ERROR,
+            error
+          })
+        })
+      )
   }
 
-  updateEmployee(e:any){
-    this.selectedEmployee ? this.hasSelectedEmployee = true : this.hasSelectedEmployee = false;
+  getEmployees(){
+    this.isLoadingSubject.next(true);
+    this.employees$ = this.fetchService.getEmployees$("employees/list")
+      .pipe(
+        map(res=>{
+          this.isLoadingSubject.next(false);
+          this.employees.next(res.data!.flat(1));
+          return this.employees.value;
+        }),
+        catchError(()=>{
+          this.isLoadingSubject.next(false);
+          return [];
+        })
+      )
   }
-  updateProduct(e:any){
-    this.selectedProduct ? this.hasSelectedProduct = true : this.hasSelectedProduct = false;
-    
-    // check suppliers
-    this.filteredSuppliers = [];
-    this.suppliers.forEach(item=>{
-      item.products.forEach(prod=>{
-        if(prod.product_id === this.selectedProduct){
-          this.filteredSuppliers.push(item);
-        } 
-      })
-    });
-    this.selectedSupplier = "";
-    this.hasSelectedCompany = false;
+  getProducts(){
+    this.isLoadingSubject.next(true);
+    this.products$ = this.fetchService.getProducts$("products/list")
+      .pipe(
+        map(res=>{
+          this.isLoadingSubject.next(false);
+          this.products.next(res.data!.flat(1));
+          return this.products.value;
+        }),
+        catchError(()=>{
+          this.isLoadingSubject.next(false);
+          return [];
+        })
+      )
   }
-  updateType(e:any){
-    if(e.target.value === "BUY"){
-      this.hasSelectedBuy = true;
-      this.hasSelectedSell = false;
-    }
-    if(e.target.value === "SELL"){
-      this.hasSelectedSell = true;
-      this.hasSelectedBuy = false;
-    }
+  getSuppliers(){
+    this.isLoadingSubject.next(true);
+    this.suppliers$ = this.fetchService.getSuppliers$("suppliers/list")
+      .pipe(
+        map(res=>{
+          this.isLoadingSubject.next(false);
+          // filter through suppliers that have the product
+          this.suppliers.next(res.data!.flat(1));
+          return this.suppliers.value;
+        }),
+        catchError(()=>{
+          this.isLoadingSubject.next(false);
+          return [];
+        })
+      )
   }
-  updateCompany(e:any){
-    this.selectedSupplier || this.selectedCustomer ? this.hasSelectedCompany = true : this.hasSelectedCompany = false;
+  getCustomers(){
+    this.isLoadingSubject.next(true);
+    this.customers$ = this.fetchService.getCustomers$("customers/list")
+      .pipe(
+        map(res=>{
+          this.isLoadingSubject.next(false);
+          this.customers.next(res.data!.flat(1));
+          return this.customers.value;
+        }),
+        catchError(()=>{
+          return [];
+        })
+      )
   }
-
-  getEmployeeList(){
-    this.fetchService.getEmployeeList().subscribe((response:EmployeesResponse)=>{
-      if(response.statusCode === 200){
-        this.employees = response.data!.flat(1);
-      }
-    })
-  }
-  getCustomerList(){
-    this.fetchService.getCustomerList().subscribe((response:CustomerResponse)=>{
-      if(response.statusCode === 200){
-        this.customers = response.data!.flat(1);
-      }
-    })
-  }
-  getProductList(){
-    this.fetchService.getProductList().subscribe((response:ProductResponse)=>{
-      if(response.statusCode === 200){
-        this.products = response.data!.flat(1);
-      }
-    })
-  }
-  getSupplierList(){
-    this.fetchService.getSupplierList().subscribe((response:SupplierResponse)=>{
-      if(response.statusCode === 200){
-        this.suppliers = response.data!.flat(1);
-      }
-    })
-  }
-
 
 }

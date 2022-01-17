@@ -1,10 +1,10 @@
-import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { FetchResponse, Product, ProductResponse, responseContent } from 'src/types/general';
+import { FetchResponse, Product, responseContent } from 'src/types/general';
 
 @Component({
   selector: 'app-form-product',

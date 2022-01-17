@@ -128,10 +128,10 @@ public class EmployeesApplication {
 
 			Transaction transaction1 = new Transaction(
 					UUID.randomUUID(),
-					emp1.getId(),
-					sup1.getSupplier_id(),
+					emp1,
+					sup1,
+					savedProduct1,
 					null,
-					savedProduct1.getProduct_id(),
 					TransactionType.BUY,
 					10
 			);
@@ -139,10 +139,10 @@ public class EmployeesApplication {
 
 			Transaction transaction2 = new Transaction(
 				UUID.randomUUID(),
-				emp1.getId(),
-				sup1.getSupplier_id(),
+				emp1,
+				sup1,
+				savedProduct1,
 				null,
-				savedProduct1.getProduct_id(),
 				TransactionType.BUY,
 				10
 			);
@@ -150,10 +150,10 @@ public class EmployeesApplication {
 
 			Transaction transaction3 = new Transaction(
 					UUID.randomUUID(),
-					emp2.getId(),
+					emp2,
 					null,
-					cust1.getCustomer_id(),
-					savedProduct1.getProduct_id(),
+					savedProduct1,
+					cust1,
 					TransactionType.SELL,
 					5
 			);

@@ -1,42 +1,92 @@
-<div *ngIf="hasError" style="color: red; padding:5px 0px;">
-    {{errorMsg}}
-</div>
-<form>
-    <div>
-        <label for="employee">Employee</label>
-        <select name="selectedEmployee" [(ngModel)]="selectedEmployee" (click)="updateEmployee($event)" required>
-            <option *ngFor="let employee of employees" [value]="employee.id">{{ employee.firstName }} {{ employee.lastName}}</option>
-        </select>
-    </div>
-    <div *ngIf="hasSelectedEmployee">
-        <label for="product">Product</label>
-        <select name="selectedProduct" [(ngModel)]="selectedProduct" (change)="updateProduct($event)" required>
-            <option *ngFor="let product of products" [value]="product.product_id">{{product.pname}}</option>
-        </select>
-    </div>
-    <div *ngIf="hasSelectedProduct">
-        <label for="type">Type</label>
-        <select name="selectedType" [(ngModel)]="selectedType" (change)="updateType($event)" required>
-            <option *ngFor="let type of types" [value]="type">{{type}}</option>
-        </select>
-    </div>
-    <div *ngIf="hasSelectedBuy">
-        <label for="supplier">Supplier</label>
-        <select name="selectedSupplier" [(ngModel)]="selectedSupplier" (change)="updateCompany($event)">
-            <option *ngFor="let supplier of filteredSuppliers" [value]="supplier.supplier_id">{{supplier.sname}}</option>
-        </select>
-    </div>
-    <div *ngIf="hasSelectedSell">
-        <label for="customer">Customer</label>
-        <select name="selectedCustomer" [(ngModel)]="selectedCustomer" (change)="updateCompany($event)">
-            <option *ngFor="let customer of customers" [value]="customer.customer_id">{{customer.cname}}</option>
-        </select>
-    </div>
-    <div *ngIf="hasSelectedCompany">
-        <label for="quantity">Quantity</label>
-        <input type="number" min="0" name="transactionQuantity" [(ngModel)]="transactionQuantity" required>
-    </div>
-    <div *ngIf="hasSelectedCompany">
-        <button (click)="submitForm()">Submit</button>
-    </div>
-</form>
+<ng-container *ngIf="(appStateForm$ | async) as appStateForm" [ngSwitch]="appStateForm.dataState">
+    <ng-container *ngSwitchCase="DataState.LOADING">
+        loading...
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.LOADED">
+        loaded successfully
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.ERROR">
+        {{appStateForm.error}}
+    </ng-container>
+</ng-container>
+<ng-container *ngIf="{employee:employees$ | async,product:products$ | async, customer: customers$ | async, supplier: suppliers$ | async} as o">
+    <ng-container *ngIf="o.employee && o.product && o.customer && o.supplier">
+        <form>
+            <div *ngIf="type === 'save'">
+                <div>
+                    <label for="employee">Employee</label>
+                    <select 
+                        name="employee" 
+                        [(ngModel)]="formState.employee"
+                        required 
+                    >
+                        <option *ngFor="let employee of (employees$ | async)" [ngValue]="employee">{{ employee.firstName }} {{ employee.lastName}}</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="product">Product</label>
+                    <select name="product" [(ngModel)]="formState.product" required>
+                        <option *ngFor="let product of (products$ | async)" [ngValue]="product">{{product.pname}}</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="type">Type</label>
+                    <select name="transactionType" [(ngModel)]="formState.transactionType" required>
+                        <option *ngFor="let type of types" [ngValue]="type">{{type}}</option>
+                    </select>
+                </div>
+                <div *ngIf="formState.transactionType === 'BUY'">
+                    <label for="supplier">Supplier</label>
+                    <select name="supplier" [(ngModel)]="formState.supplier" >
+                        <option *ngFor="let supplier of (suppliers$ | async)" [ngValue]="supplier">{{supplier.sname}}</option>
+                    </select>
+                </div>
+                <div *ngIf="formState.transactionType === 'SELL'">
+                    <label for="customer">Customer</label>
+                    <select name="customer" [(ngModel)]="formState.customer" >
+                        <option *ngFor="let customer of (customers$ | async)" [ngValue]="customer">{{customer.cname}}</option>
+                    </select>
+                </div>    
+            </div>
+            <div *ngIf="type === 'edit'">
+                <div>
+                    <label for="employee">Employee</label>
+                    <select name="selectedEmployee" [(ngModel)]="formState.employee" required >
+                        <option *ngFor="let employee of (employees$ | async)" [value]="employee">{{ employee.firstName }} {{ employee.lastName}}</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="product">Product</label>
+                    <select name="selectedProduct" [(ngModel)]="formState.product" required>
+                        <option *ngFor="let product of (products$ | async)" [value]="product">{{product.pname}}</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="type">Type</label>
+                    <select name="selectedType" [(ngModel)]="formState.transactionType" required>
+                        <option *ngFor="let type of types" [ngValue]="type">{{type}}</option>
+                    </select>
+                </div>
+                <div *ngIf="formState.transactionType === 'BUY'">
+                    <label for="supplier">Supplier</label>
+                    <select name="selectedSupplier" [(ngModel)]="formState.supplier" >
+                        <option *ngFor="let supplier of (suppliers$ | async)" [value]="supplier">{{supplier.sname}}</option>
+                    </select>
+                </div>
+                <div *ngIf="formState.transactionType === 'SELL'">
+                    <label for="customer">Customer</label>
+                    <select name="selectedCustomer" [(ngModel)]="formState.customer" >
+                        <option *ngFor="let customer of (customers$ | async)" [value]="customer">{{customer.cname}}</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label for="quantity">Quantity</label>
+                <input type="number" min="0" name="transactionQuantity" [(ngModel)]="formState.transaction_quantity" required>
+            </div>
+            <div>
+                <button type="submit" (click)="submitForm()">Submit</button>
+            </div>
+        </form>
+    </ng-container>
+</ng-container>

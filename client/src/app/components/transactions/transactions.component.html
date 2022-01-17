@@ -1,30 +1,61 @@
-<div>
-    <!-- error -->
-</div>
-<h1>Transactions <span><button (click)="showForm()">Add</button></span></h1>
-<app-form-transactions *ngIf="showAddForm" [type]="formType"></app-form-transactions>
-<table>
-    <thead>
-        <tr>
-            <th>Employee</th>
-            <th>Supplier</th>
-            <th>Product</th>
-            <th>Customer</th>
-            <th>Type</th>
-            <th>Quantity</th>
-            <th>Info</th>
-        </tr>
-    </thead>
-    <tbody *ngIf="isLoading">Loading...</tbody>
-    <tbody *ngIf="!isLoading">
-        <tr *ngFor="let t of trans">
-            <td *ngIf="t.employee.length">{{t.employee[0].firstName}} {{t.employee[0].lastName}}</td>
-            <td *ngIf="t.supplier.length">{{t.supplier[0].sname}}</td>
-            <td *ngIf="t.product.length">{{t.product[0].pname}}</td>
-            <td *ngIf="t.customer.length">{{t.customer[0].cname}}</td>
-            <td>{{t.transactionType}}</td>
-            <td>{{t.transaction_quantity}}</td>
-            <td><button (click)="getInfo(t.transaction_id)">Info</button></td>
-        </tr>
-    </tbody>    
-</table>
+<ng-container *ngIf="(appState$ | async) as appState" [ngSwitch]="appState.dataState">
+    <ng-container *ngSwitchCase="DataState.LOADING">
+        loading...
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.LOADED">
+        <h1>
+            {{title}} 
+            <span *ngIf="isAll">
+                <button (click)="showAddForm = !showAddForm">Add</button>
+            </span>
+        </h1>
+        <app-form-transactions 
+            *ngIf="showAddForm" 
+            [type]="formType"
+            (closeForm)="closeAddForm()"
+            (refreshForm)="refreshTransactionView($event)"
+        ></app-form-transactions>
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Supplier</th>
+                    <th>Product</th>
+                    <th>Customer</th>
+                    <th>Type</th>
+                    <th>Quantity</th>
+                    <th *ngIf="isAll">Info</th>
+                    <th *ngIf="!isAll">Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let transaction of (appState.appData?.data || [])">
+                    <td>{{ transaction.employee.firstName}} {{ transaction.employee.lastName }}</td>
+                    <td>{{ transaction.supplier?.sname }}</td>
+                    <td>{{ transaction.product.pname }}</td>
+                    <td>{{ transaction.customer?.cname }}</td>
+                    <td>{{ transaction.transactionType }}</td>
+                    <td>{{ transaction.transaction_quantity }}</td>
+                    <td *ngIf="isAll"><button (click)="getInfo(transaction.transaction_id)">info</button></td>
+                    <td *ngIf="!isAll"><button (click)="showEditForm = !showEditForm">Edit</button></td>
+                </tr>
+            </tbody>    
+        </table>
+
+        <ng-container *ngIf="showEditForm">
+            <h3>Edit {{title}}</h3>
+            <app-form-transactions
+                [type]="formType"
+                [data]="appState"
+                (closeForm)="closeEditForm()"
+                (refreshForm)="refreshTransactionView($event)"
+            ></app-form-transactions>
+
+        </ng-container>
+
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.ERROR">
+        {{appState.error}}
+    </ng-container>
+</ng-container>
+

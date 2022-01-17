@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject, catchError, combineLatest, filter, find, map, Observable, of, startWith, switchMap } from 'rxjs';
-import { Appstate } from 'src/app/interfaces/appstate';
+import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
+import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { FetchResponse, Inventory, InventoryResponse, Product, responseContent } from 'src/types/general';
+import { FetchResponse, Inventory } from 'src/types/general';
 
 @Component({
   selector: 'app-inventorys',

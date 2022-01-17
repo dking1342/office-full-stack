@@ -4,7 +4,7 @@ import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxj
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { FetchResponse, Product, ProductResponse, responseContent } from 'src/types/general';
+import { FetchResponse, Product, responseContent } from 'src/types/general';
 
 @Component({
   selector: 'app-products',

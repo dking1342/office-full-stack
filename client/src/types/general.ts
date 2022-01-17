@@ -1,5 +1,3 @@
-export type ResponseParameter = Employee | Branch | Customer | Product | Supplier | Transaction;
-
 export let responseContent = {
     timestamp:new Date(),
     HttpStatus:"",
@@ -20,105 +18,6 @@ export interface FetchResponse<T> {
     developerMessage?: string,
     data?: T[],
     boolData?: boolean
-}
-
-export interface EmployeesResponse {
-    timestamp?: Date,
-    HttpStatus?: string,
-    status?: string,
-    statusCode?: number,
-    message?: string,
-    developerMessage?: string,
-    data?: Employee[],
-    boolData?: boolean
-}
-
-export interface BranchResponse {
-    timestamp?: Date,
-    HttpStatus?: string,
-    status?: string,
-    statusCode?: number,
-    message?: string,
-    developerMessage?: string,
-    data?: Branch[],
-    boolData?: boolean
-}
-
-export interface BranchResponse {
-    timestamp?: Date,
-    HttpStatus?: string,
-    status?: string,
-    statusCode?: number,
-    message?: string,
-    developerMessage?: string,
-    branchData?: Branch[],
-    branchBoolData?: boolean
-}
-
-export interface CustomerResponse {
-    timestamp?: Date,
-    HttpStatus?: string,
-    status?: string,
-    statusCode?: number,
-    message?: string,
-    developerMessage?: string,
-    data?: Customer[],
-    boolData?: boolean
-}
-
-export interface ProductResponse {
-    timestamp?: Date,
-    HttpStatus?: string,
-    status?: string,
-    statusCode?: number,
-    message?: string,
-    developerMessage?: string,
-    data?: Product[],
-    boolData?: boolean
-}
-
-export interface SupplierResponse {
-    timestamp?: Date,
-    HttpStatus?: string,
-    status?: string,
-    statusCode?: number,
-    message?: string,
-    developerMessage?: string,
-    data?: Supplier[],
-    boolData?: boolean
-}
-
-export interface SupplierProductResponse {
-    timestamp?: Date,
-    HttpStatus?: string,
-    status?: string,
-    statusCode?: number,
-    message?: string,
-    developerMessage?: string,
-    supplierData?: Product[],
-    boolData?: boolean
-}
-
-export interface InventoryResponse {
-    timestamp?: Date,
-    HttpStatus?: string,
-    status?: string,
-    statusCode?: number,
-    message?: string,
-    developerMessage?: string,
-    data?: Inventory[],
-    boolData?: boolean  
-}
-
-export interface TransactionResponse {
-    timestamp?: Date,
-    HttpStatus?: string,
-    status?: string,
-    statusCode?: number,
-    message?: string,
-    developerMessage?: string,
-    data?: Transaction[],
-    boolData?: boolean 
 }
 
 export interface Employee {
@@ -159,20 +58,10 @@ export interface Inventory {
 
 export interface Transaction {
     transaction_id:string,
-    employee_id:string,
-    customer_id:string | null,
-    supplier_id:string | null,
-    product_id:string,
-    transactionType:string,
-    transaction_quantity:number
-}
-
-export interface TransactionArray {
-    transaction_id:string,
-    employee:Employee[],
-    customer:Customer[] | null,
-    supplier:Supplier[] | null,
-    product:Product[],
+    employee:Employee,
+    supplier: Supplier | null,
+    product:Product,
+    customer:Customer | null,
     transactionType:string,
     transaction_quantity:number
 }
@@ -180,5 +69,12 @@ export interface TransactionArray {
 export interface ProductCheckBox {
     product_id:string,
     pname:string,
+    isChecked:boolean
+}
+
+export interface BranchRadio {
+    branch_id:string,
+    location:string,
+    branchStatus:string,
     isChecked:boolean
 }

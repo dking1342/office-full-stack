@@ -5,9 +5,7 @@ import { CustomersComponent } from './components/customers/customers.component';
 import { EmployeesComponent } from './components/employees/employees.component';
 import { InventorysComponent } from './components/inventorys/inventorys.component';
 import { ProductsComponent } from './components/products/products.component';
-import { SupplierProductsComponent } from './components/supplier-products/supplier-products.component';
 import { SuppliersComponent } from './components/suppliers/suppliers.component';
-import { TransactionComponent } from './components/transaction/transaction.component';
 import { TransactionsComponent } from './components/transactions/transactions.component';
 
 const routes: Routes = [
@@ -52,10 +50,6 @@ const routes: Routes = [
     component:SuppliersComponent
   },
   {
-    path:"supplier/product/:id",
-    component:SupplierProductsComponent
-  },
-  {
     path:"inventory",
     component:InventorysComponent
   },
@@ -64,8 +58,8 @@ const routes: Routes = [
     component:TransactionsComponent
   },
   {
-    path:"transaction/:id",
-    component:TransactionComponent
+    path:"transactions/:id",
+    component:TransactionsComponent
   }
 ];
 

@@ -3,20 +3,54 @@
         loading...
     </ng-container>
     <ng-container *ngSwitchCase="DataState.LOADED">
-        <h1>{{ title }} <span *ngIf="isAll"><button (click)="showForm = !showForm">Add</button></span></h1>
+        <h1>
+            {{ title }} 
+            <span *ngIf="isAll">
+                <button (click)="showAddForm = !showAddForm">Add</button>
+            </span>
+        </h1>
         <app-form-employee 
-            *ngIf="showForm" 
+            *ngIf="showAddForm" 
             [type]="formType" 
-            (formRefresh)="refreshEmployeeView(dataSubject.value)"
-            (closeForm)="closeFormAction()"
+            (closeForm)="closeAddForm()"
+            (refreshForm)="refreshEmployeeView($event)"
         ></app-form-employee>
-        <app-table-employees 
-            [appState]="appState" 
-            [isAll]="isAll" 
-            [type]="formType"
-            (formRefresh)="refreshEmployeeView($event)"
-            (closeForm)="closeFormAction()"
-        ></app-table-employees>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Role</th>
+                    <th>Branch</th>
+                    <th *ngIf="isAll">Info</th>
+                    <th *ngIf="!isAll">Edit</th>
+                    <th *ngIf="!isAll">Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let employee of (appState.appData?.data || [])">
+                    <td>{{employee.firstName}}</td>
+                    <td>{{employee.lastName}}</td>
+                    <td>{{employee.role.slice(0,1) + employee.role.slice(1).toLowerCase()}}</td>
+                    <td>{{employee.branch.location.slice(0,1) + employee.branch.location.toLowerCase().slice(1)}}</td>
+                    <td *ngIf="isAll"><button (click)="getInfo(employee.id)">Info</button></td>
+                    <td *ngIf="!isAll"><button (click)="showEditForm = !showEditForm">Edit</button></td>
+                    <td *ngIf="!isAll"><button (click)="deleteEmployee(employee.id)">Delete</button></td>
+                </tr>
+            </tbody>    
+        </table>
+
+        <ng-container *ngIf="showEditForm">
+            <h3>Edit {{ title }}</h3>
+            <app-form-employee 
+                [type]="formType" 
+                [data]="appState"
+                (closeForm)="closeEditForm()"
+                (refreshForm)="refreshEmployeeView($event)"
+            ></app-form-employee>
+        </ng-container>
+
     </ng-container>
     <ng-container *ngSwitchCase="DataState.ERROR">
         {{appState.error}}

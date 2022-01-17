@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
+import { Requeststatus } from 'src/app/enums/requeststatus';
+import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { Customer, CustomerResponse, Employee, EmployeesResponse, Product, ProductResponse, Supplier, SupplierResponse, Transaction, TransactionArray, TransactionResponse } from 'src/types/general';
+import { Employee, FetchResponse, responseContent, Transaction } from 'src/types/general';
 
 @Component({
   selector: 'app-transactions',
@@ -10,11 +13,21 @@ import { Customer, CustomerResponse, Employee, EmployeesResponse, Product, Produ
 })
 export class TransactionsComponent implements OnInit {
 
-  transactions:TransactionArray[] = [];
-  trans:any = [];
+  appState$!: Observable<Appstate<FetchResponse<Transaction>>>;
+  dataSubject = new BehaviorSubject<FetchResponse<Transaction>>(responseContent);
+  isLoadingSubject = new BehaviorSubject<boolean>(false);
+  isLoading$ = this.isLoadingSubject.asObservable();
+  readonly DataState = Requeststatus;
+
+  employees = new BehaviorSubject<Employee[]>([]);
+  employees$ = this.employees.asObservable();
+
   showAddForm: boolean = false;
-  formType:string = "save";
-  isLoading = true;
+  showEditForm:boolean=false;
+  formType:string = "";
+  isAll:boolean=false;
+  title:string="";
+  url:string = this.router.url.toString().slice(1,);
 
   constructor(
     private router:Router,
@@ -22,72 +35,59 @@ export class TransactionsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.getTransactions();
+    this.getData(this.url.split("/").length);
   }
 
-  getTransactions(){
-    this.fetchService.getTransactionList().subscribe((response:TransactionResponse)=>{
-      if(response.statusCode === 200){
-        let transArray:any = response.data!.flat(1).map(item=>{
-          
-          let e:Employee[] = [];
-          this.fetchService.getEmployee(item.employee_id).subscribe((res:EmployeesResponse)=>{
-            if(res.statusCode === 200){
-              e.push(res.data!.flat(1)[0])
-            }
-          })
+  getData(urlLength:number){
+    let urlPath = urlLength === 1 ? `${this.url}/list` : `${this.url.split("/")[0]}/get/${this.url.split("/")[1]}`;
+    urlLength === 1 ? this.formType = "save" : this.formType = "edit";
+    urlLength === 1 ? this.isAll = true : this.isAll = false;
+    this.title = this.url.split("/")[0].toString().slice(0,1).toUpperCase() + this.url.split("/")[0].toString().slice(1,);
+    this.getList(urlPath);
+  }
 
-          let s:Supplier[] = [];
-          if(item.transactionType === "BUY"){
-            this.fetchService.getSupplier(item.supplier_id!).subscribe((res:SupplierResponse)=>{
-              if(res.statusCode === 200){
-                s?.push(res.data!.flat(1)[0])
-              }
-            })
-          } else {
-            s.push({supplier_id:"",sname:"",products:[]});
-          }
-
-          let c:Customer[] = [];
-          if(item.transactionType === "SELL"){
-            this.fetchService.getCustomer(item.customer_id!).subscribe((res:CustomerResponse)=>{
-              if(res.statusCode === 200){
-                c.push(res.data!.flat(1)[0]);
-              }
-            })
-          } else {
-            c.push({customer_id:"",cname:""});
-          }
-
-          let p:Product[] = [];
-          this.fetchService.getProduct(item.product_id).subscribe((res:ProductResponse)=>{
-            if(res.statusCode === 200){
-              p.push(res.data!.flat(1)[0])
-            }
-          })
-
+  getList(path:string){
+    this.isLoadingSubject.next(true);
+    this.appState$ = this.fetchService.getTransactions$(path)
+      .pipe(
+        map(res=>{
+          this.dataSubject.next(res);
+          this.isLoadingSubject.next(false);
           return {
-            transaction_id:item.transaction_id,
-            employee:e,
-            customer:c,
-            supplier:s,
-            product:p,
-            transactionType:item.transactionType,
-            transaction_quantity:item.transaction_quantity,
+            dataState:Requeststatus.LOADED,
+            appData:{
+              ...res,
+              data:res.data!.flat(1)
+            }
           }
-        });
-        this.trans = transArray;
-      }
-    })
-    this.isLoading = false;
+        }),
+        startWith({
+          dataState:Requeststatus.LOADING
+        }),
+        catchError((error:string)=>{
+          this.isLoadingSubject.next(false);
+          return of({
+            dataState:Requeststatus.ERROR,
+            error
+          })
+        })
+      )
   }
 
   getInfo(id:string){
-    this.router.navigate(['transaction',id])
+    this.router.navigate([this.url,id])
   }
 
-  showForm(){
+  closeAddForm(){
     this.showAddForm = !this.showAddForm;
+  }
+  closeEditForm(){
+    this.showEditForm = !this.showEditForm;
+  }
+  refreshTransactionView(response:FetchResponse<Transaction>){
+    if(response.statusCode === 200){
+      this.getData(this.url.split("/").length);
+    }
   }
 
 }

@@ -4,7 +4,7 @@ import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxj
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { FetchResponse, responseContent, Supplier, SupplierResponse } from 'src/types/general';
+import { FetchResponse, responseContent, Supplier } from 'src/types/general';
 
 @Component({
   selector: 'app-suppliers',
@@ -19,7 +19,6 @@ export class SuppliersComponent implements OnInit {
   isLoading$ = this.isLoadingSubject.asObservable();
   readonly DataState = Requeststatus;
 
-  suppliers:Supplier[] = [];
   showAddForm: boolean = false;
   showEditForm: boolean = false;
   formType:string = "";

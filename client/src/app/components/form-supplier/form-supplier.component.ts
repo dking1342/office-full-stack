@@ -4,7 +4,7 @@ import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxj
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { FetchResponse, Product, ProductCheckBox, responseContent, Supplier, SupplierResponse } from 'src/types/general';
+import { FetchResponse, Product, ProductCheckBox, responseContent, Supplier } from 'src/types/general';
 
 @Component({
   selector: 'app-form-supplier',
@@ -52,7 +52,6 @@ export class FormSupplierComponent implements OnInit {
         sname:this.data.appData!.data![0].sname,
         products:this.data.appData!.data![0].products
       }
-      console.log(this.formState)
     }
   }
 

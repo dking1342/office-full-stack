@@ -61,7 +61,7 @@ public class InventoryImplement implements InventoryService {
                     responseInventory.add(savedInventory);
                     return responseInventory;
                 } else {
-                    throw new Exception("invalid quantity");
+                    throw new Exception("Inventory cannot go below zero");
                 }
             } else {
                 throw new Exception("invalid product");

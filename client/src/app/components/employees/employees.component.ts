@@ -13,16 +13,18 @@ import { Employee, FetchResponse, responseContent } from 'src/types/general';
 })
 export class EmployeesComponent implements OnInit {
   
-  public appState$!: Observable<Appstate<FetchResponse<Employee>>>;
-  readonly DataState = Requeststatus;
-  dataSubject = new BehaviorSubject<FetchResponse<Employee>>(responseContent);
+  appState$!: Observable<Appstate<FetchResponse<Employee>>>;
   isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();
+  dataSubject = new BehaviorSubject<FetchResponse<Employee>>(responseContent);
+  readonly DataState = Requeststatus;
 
-  showForm: boolean = false;
+  showAddForm: boolean = false;
+  showEditForm: boolean = false;
   formType:string = "";
   isAll:boolean = false;
   title:string = "";
+  isSortAsc:boolean = true;
   url:string = this.router.url.toString().slice(1,);
 
   constructor(
@@ -47,7 +49,6 @@ export class EmployeesComponent implements OnInit {
     this.appState$ = this.fetchService.getEmployees$(path)
       .pipe(
         map(res => {
-          this.dataSubject.next(res);
           this.isLoadingSubject.next(false);
           return {
             dataState:Requeststatus.LOADED,
@@ -70,13 +71,24 @@ export class EmployeesComponent implements OnInit {
       )
   }
 
+  deleteEmployee(id:string){
+    console.log(id);
+  }
+
+  getInfo(id:string){
+    this.router.navigate([this.url,id]);
+  }
+
+  closeAddForm(){
+    this.showAddForm = !this.showAddForm;
+  }
+  closeEditForm(){
+    this.showEditForm = !this.showEditForm;
+  }
   refreshEmployeeView(response:FetchResponse<Employee>){
     if(response.statusCode === 200){
       this.getData(this.url.split("/").length);
     }
   }
 
-  closeFormAction(){
-    this.showForm = !this.showForm;
-  }
 }

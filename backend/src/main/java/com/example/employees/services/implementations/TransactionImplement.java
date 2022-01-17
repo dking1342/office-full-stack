@@ -27,7 +27,8 @@ public class TransactionImplement implements TransactionService {
     @Override
     public ArrayList<Transaction> create(Transaction transaction) throws Exception {
         log.info("Saving transaction");
-        Optional<Employee> optionalEmployee = employeeRepository.findById(transaction.getEmployee_id());
+
+        Optional<Employee> optionalEmployee = employeeRepository.findById(transaction.getEmployee().getId());
 
         if(optionalEmployee.isPresent()){
             int transaction_quantity = 0;
@@ -45,7 +46,7 @@ public class TransactionImplement implements TransactionService {
             List<Inventory> list = inventoryRepository
                     .findAll()
                     .stream()
-                    .filter(inventory -> inventory.getProduct().getProduct_id().equals(transaction.getProduct_id()))
+                    .filter(inventory -> inventory.getProduct().getProduct_id().equals(transaction.getProduct().getProduct_id()))
                     .collect(Collectors.toList());
 
             UUID inv_id = list.get(0).getInventory_id();
@@ -59,10 +60,10 @@ public class TransactionImplement implements TransactionService {
             // save transaction
             Transaction newTransaction = new Transaction(
                     UUID.randomUUID(),
-                    transaction.getEmployee_id(),
-                    transaction.getSupplier_id(),
-                    transaction.getCustomer_id(),
-                    transaction.getProduct_id(),
+                    transaction.getEmployee(),
+                    transaction.getSupplier(),
+                    transaction.getProduct(),
+                    transaction.getCustomer(),
                     transaction.getTransactionType(),
                     transaction.getTransaction_quantity()
             );
@@ -99,7 +100,7 @@ public class TransactionImplement implements TransactionService {
             List<Inventory> list = inventoryRepository
                     .findAll()
                     .stream()
-                    .filter(inventory -> inventory.getProduct().getProduct_id().equals(transaction.getProduct_id()))
+                    .filter(inventory -> inventory.getProduct().getProduct_id().equals(transaction.getProduct().getProduct_id()))
                     .collect(Collectors.toList());
 
             UUID inv_id = list.get(0).getInventory_id();
@@ -113,10 +114,10 @@ public class TransactionImplement implements TransactionService {
             // save transaction
             Transaction newTransaction = new Transaction(
                     transaction.getTransaction_id(),
-                    transaction.getEmployee_id(),
-                    transaction.getSupplier_id(),
-                    transaction.getCustomer_id(),
-                    transaction.getProduct_id(),
+                    transaction.getEmployee(),
+                    transaction.getSupplier(),
+                    transaction.getProduct(),
+                    transaction.getCustomer(),
                     transaction.getTransactionType(),
                     transaction.getTransaction_quantity()
             );
