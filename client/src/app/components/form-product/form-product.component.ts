@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
@@ -18,10 +19,17 @@ export class FormProductComponent implements OnInit {
   @Output() closeForm = new EventEmitter();
   @Output() refreshForm = new EventEmitter<FetchResponse<Product>>();
 
-  formState:Product = {
-    product_id:"",
-    pname:""
-  }
+  // reactive form state
+  form = this.fb.group({
+    product_id:[""],
+    pname:["",Validators.required]
+  });
+
+  // validation state
+  submitted:boolean = false;
+  isFormField:boolean = true;  
+
+  // view specific id
   product_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
 
   appStateForm$!: Observable<Appstate<FetchResponse<Product>>>;
@@ -32,30 +40,30 @@ export class FormProductComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private fetchService: FetchService
+    private fetchService: FetchService,
+    private fb: FormBuilder
   ) { }
+
+  // getters for form state
+  get pname(){ return this.form.get("pname")};
 
   ngOnInit(): void {
     if(this.type === "edit"){
-      this.formState.pname = this.data.appData!.data![0].pname;
+      this.form.setValue({
+        product_id:this.data.appData!.data![0].product_id,
+        pname:this.data.appData!.data![0].pname
+      })
     }
   }
 
   submitForm(){
-    if(this.type === "save"){
-      this.formState = {
-        ...this.formState,
-        pname:this.formState.pname.toUpperCase()
-      }
-      this.saveProduct(this.formState);
+    this.submitted = true;
+    if(this.type === "save" && this.form.valid){
+      this.saveProduct(this.form.value);
+
     }
-    if(this.type === "edit"){
-      this.formState = {
-        ...this.formState,
-        product_id:this.product_id,
-        pname:this.formState.pname.toUpperCase()
-      }
-      this.updateProduct(this.formState,this.product_id);
+    if(this.type === "edit" && this.form.valid){
+      this.updateProduct(this.form.value,this.product_id);
     }
   }
 

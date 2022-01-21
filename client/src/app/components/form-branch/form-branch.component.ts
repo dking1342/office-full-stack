@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
@@ -19,14 +20,29 @@ export class FormBranchComponent implements OnInit {
   @Output() closeForm = new EventEmitter();
   @Output() refreshForm = new EventEmitter<FetchResponse<Branch>>();
 
+  // reactive form state
+  form = this.fb.group({
+    branch_id:[""],
+    location:["",Validators.required],
+    branchStatus:["",Validators.required]
+  });
+
   formState:Branch = {
     branch_id:"",
     location:"",
     branchStatus:""
   }
   locationStatus: Status[] = [];
+
+  // validation state
+  submitted:boolean = false;
+  isFormField:boolean = true;
+  isSubmitField:boolean = false;
+  
+  // view specific id
   b_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
 
+  // observables
   appStateForm$!: Observable<Appstate<FetchResponse<Branch>>>;
   saveSubject = new BehaviorSubject<FetchResponse<Branch>>(responseContent);
   isLoadingSubject = new BehaviorSubject<boolean>(false);
@@ -35,31 +51,34 @@ export class FormBranchComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private fetchService:FetchService
+    private fetchService:FetchService,
+    private fb: FormBuilder,
   ) { }
 
+  // getters for form state
+  get location(){ return this.form.get("location")};
+  get branchStatus(){ return this.form.get("branchStatus")};
+
   ngOnInit(): void {
-    if(this.type === "edit"){
-      this.formState.location = this.data.appData!.data![0].location;
-      this.formState.branchStatus = this.data.appData!.data![0].branchStatus;
-    }
     Object.values(Status).map(v=> this.locationStatus.push(v));
+
+    if(this.type === "edit"){
+      this.form.setValue({
+        branch_id:this.data.appData!.data![0].branch_id,
+        location:this.data.appData!.data![0].location,
+        branchStatus:this.data.appData!.data![0].branchStatus
+      })
+      console.log(this.form.value);
+    }
   }
 
   submitForm(){
-    if(this.type === "save"){
-      this.formState = {
-        ...this.formState,
-        location:this.formState.location.toUpperCase()
-      }
-      this.saveBranch(this.formState);
+    this.submitted = true;
+    if(this.type === "save" && this.form.valid){
+      this.saveBranch(this.form.value);
     }
-    if(this.type === "edit"){
-      this.formState = {
-        ...this.formState,
-        branch_id:this.b_id
-      }
-      this.updateBranch(this.formState,this.b_id);
+    if(this.type === "edit" && this.form.valid){
+      this.updateBranch(this.form.value,this.b_id);
     }
   }
 

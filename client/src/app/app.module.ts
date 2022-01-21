@@ -18,6 +18,7 @@ import { InventorysComponent } from './components/inventorys/inventorys.componen
 import { ProductsComponent } from './components/products/products.component';
 import { SuppliersComponent } from './components/suppliers/suppliers.component';
 import { TransactionsComponent } from './components/transactions/transactions.component';
+import { ValidationMessageComponent } from './components/validation-message/validation-message.component';
 
 
 @NgModule({
@@ -37,6 +38,7 @@ import { TransactionsComponent } from './components/transactions/transactions.co
     FormInventoryComponent,
     TransactionsComponent,
     FormTransactionsComponent,
+    ValidationMessageComponent,
   ],
   imports: [
     BrowserModule,

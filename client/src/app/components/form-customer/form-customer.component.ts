@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
@@ -18,12 +19,21 @@ export class FormCustomerComponent implements OnInit {
   @Output() closeForm = new EventEmitter();
   @Output() refreshForm = new EventEmitter<FetchResponse<Customer>>();
 
-  formState:Customer = {
-    customer_id:"",
-    cname:""
-  }
-  c_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
+  // reactive form state
+  form = this.fb.group({
+    customer_id:[""],
+    cname:["",Validators.required]
+  });
 
+  // validation state
+  submitted:boolean = false;
+  isFormField:boolean = true;
+  isSubmitField:boolean = false;
+
+  // view specific id 
+  customer_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
+
+  // observables
   appStateForm$!: Observable<Appstate<FetchResponse<Customer>>>;
   saveSubject = new BehaviorSubject<FetchResponse<Customer>>(responseContent);
   isLoadingSubject = new BehaviorSubject<boolean>(false);
@@ -32,26 +42,29 @@ export class FormCustomerComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private fetchService: FetchService
+    private fetchService: FetchService,
+    private fb: FormBuilder,
   ) { }
+
+  // getters for form state
+  get cname(){ return this.form.get("cname")};
 
   ngOnInit(): void {
     if(this.type === "edit"){
-      this.formState.cname = this.data.appData!.data![0].cname;
+      this.form.setValue({
+        customer_id:this.data.appData!.data![0].customer_id,
+        cname:this.data.appData!.data![0].cname
+      });
     }
   }
 
   submitForm(){
-    if(this.type === "save"){
-      console.log(this.formState);
-      this.saveCustomer(this.formState);
+    this.submitted = true;
+    if(this.type === "save" && this.form.valid){
+      this.saveCustomer(this.form.value);
     }
-    if(this.type === "edit"){
-      this.formState = {
-        ...this.formState,
-        customer_id:this.c_id
-      }
-      this.updateCustomer(this.formState,this.c_id);
+    if(this.type === "edit" && this.form.valid){
+      this.updateCustomer(this.form.value,this.customer_id);
     }
   }
 

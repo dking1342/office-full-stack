@@ -1,0 +1,88 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+    <input type="text" name="id" hidden formControlName="id" />
+  
+  
+    <label for="firstName">First Name: </label>
+    <input autocomplete="off" type="text" name="firstName" formControlName="firstName" />
+    <div 
+      style="color:red;" 
+      *ngIf="firstName?.invalid && (firstName?.dirty || firstName?.touched || submitted)"
+    >
+      Please enter valid first name
+    </div>
+  
+    <label for="lastName">Last Name: </label>
+    <input type="text" name="lastName" formControlName="lastName" />
+    <div 
+      style="color:red;" 
+      *ngIf="firstName?.invalid && (firstName?.dirty || firstName?.touched || submitted)"
+    >
+      Please enter valid last name
+    </div>
+  
+    <label for="role">Role: </label>
+    <select formControlName="role" required>
+      <option [ngValue]="null" disabled>Choose your role</option>
+      <option *ngFor="let role of roles" [ngValue]="role">
+        {{ role }}
+      </option>
+    </select>
+    <div
+      style="color:red;"
+      *ngIf="role?.invalid && (role?.dirty || role?.touched || submitted)"
+    >
+      Please select a role
+    </div>
+    
+    <div>
+      <label for="location">Location</label>
+      <div *ngFor="let location of locations">
+        <input
+          type="radio"
+          [value]="location"
+          formControlName="location"
+          required
+        />
+        <label [for]="location">{{ location }}</label>
+      </div>
+    </div>
+    <div
+      style="color:red;"
+      *ngIf="location?.invalid && (location?.dirty || location?.touched || submitted)"
+    >
+      Please select a location
+    </div>
+  
+    <div>
+      <label for="">Products: </label>
+      <div *ngFor="let p of productList; let i = index">
+        <label>
+          <input
+            type="checkbox"
+            [value]="p.pname"
+            (change)="onCheckboxChange($event, p)"
+          />
+          {{ p.pname }}
+        </label>
+      </div>
+    </div>
+  
+    <div>
+      <input type="submit" value="submit" />
+      <div 
+        style="color:red;"
+        *ngIf="form.invalid && submitted"
+      >
+        Please correct the problems with the form
+      </div>  
+    </div>
+  
+  </form>
+  
+  <!-- 
+  Copyright Google LLC. All Rights Reserved.
+  Use of this source code is governed by an MIT-style license that
+  can be found in the LICENSE file at https://angular.io/license
+  -->
+  

@@ -10,18 +10,47 @@
     </ng-container>
 </ng-container>
 
-<form>
+<form [formGroup]="form" (ngSubmit)="submitForm()">
     <div>
         <label for="location">Location</label>
-        <input type="text" name="location" [(ngModel)]="formState.location" required>
+        <input 
+            type="text" 
+            autocomplete="off"
+            name="location" 
+            formControlName="location"
+        >
+        <app-validation-message
+            [component]="location"
+            message="Please provide a branch"
+            [submitted]="submitted"
+            [isFormField]="isFormField"
+        ></app-validation-message>
     </div>
     <div>
-        <label for="status">Status</label>
-        <select name="selectedStatus" [(ngModel)]="formState.branchStatus" required>
-            <option *ngFor="let status of locationStatus" [value]="status">{{status}}</option>
+        <label for="branchStatus">Status: </label>
+        <select name="branchStatus" formControlName="branchStatus">
+            <option [ngValue]="null" disabled>Choose status</option>
+            <option 
+                *ngFor="let status of locationStatus" 
+                [ngValue]="status"
+            >
+                {{status}}
+            </option>
         </select>
+        <app-validation-message
+            [component]="branchStatus"
+            message="Please select a status"
+            [submitted]="submitted"
+            [isFormField]="isFormField"
+        ></app-validation-message>
     </div>
     <div>
-        <button (click)="submitForm()">Submit</button>
+        <input type="submit" value="Submit">
+        <app-validation-message
+            [component]="form"
+            message="Please correct form fields"
+            [submitted]="submitted"
+            [isFormField]="isSubmitField"
+        ></app-validation-message>
     </div>
 </form>

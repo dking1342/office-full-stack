@@ -10,13 +10,30 @@
     </ng-container>
 </ng-container>
 
-<form>
+<form [formGroup]="form" (ngSubmit)="submitForm()">
     <div>
-        <label for="customer_name">Name</label>
-        <input type="text" name="customer_name" [(ngModel)]="formState.cname" required>
+        <label for="cname">Name</label>
+        <input 
+            type="text" 
+            autocomplete="off"
+            name="cname" 
+            formControlName="cname"
+        >
+        <app-validation-message
+            [component]="cname"
+            message="Please provide a customer"
+            [submitted]="submitted"
+            [isFormField]="isFormField"
+        ></app-validation-message>
     </div>
     <div>
-        <button (click)="submitForm()">Submit</button>
+        <input type="submit" value="Submit">
+        <app-validation-message
+            [component]="form"
+            message="Please correct form fields"
+            [submitted]="submitted"
+            [isFormField]="isSubmitField"
+        ></app-validation-message>
     </div>
 </form>
 

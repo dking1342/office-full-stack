@@ -1,39 +1,84 @@
 <ng-container *ngIf="(appStateForm$ | async) as appState" [ngSwitch]="appState.dataState">
     done
 </ng-container>
-<ng-container *ngIf="{a:appStateBranch$ | async,b:branchList$ | async} as o">
-    <ng-container *ngIf="o.a && o.b">
-        <form (ngSubmit)="submitForm()">
-            <div>
-                <label for="firstName">First Name</label>
-                <input type="text" name="firstName" [(ngModel)]="formState.firstName" required>
+<ng-container *ngIf="branchList$ | async as branchList">
+    <form [formGroup]="form" (ngSubmit)="submitForm()">
+        <div>
+            <label for="firstName">First Name</label>
+            <input 
+                type="text" 
+                name="firstName" 
+                autocomplete="off"
+                formControlName="firstName"
+            >
+            <app-validation-message
+                [component]="firstName"
+                message="Please provide a first name"
+                [submitted]="submitted"
+                [isFormField]="isFormField"
+            ></app-validation-message>
+        </div>
+        <div>
+            <label for="lastName">Last Name</label>
+            <input 
+                type="text" 
+                name="lastName" 
+                autocomplete="off"
+                formControlName="lastName"
+            >
+            <app-validation-message
+                [component]="lastName"
+                message="Please provide a last name"
+                [submitted]="submitted"
+                [isFormField]="isFormField"
+            ></app-validation-message>
+        </div>
+        <div>
+            <label for="role">Role</label>
+            <select formControlName="role" name="role">
+                <option value="null" disabled>Choose a role</option>
+                <option 
+                    *ngFor="let role of roles" 
+                    [ngValue]="role"
+                >
+                    {{ role }}
+                </option>
+            </select>
+            <app-validation-message
+                [component]="role"
+                message="Please select a role"
+                [submitted]="submitted"
+                [isFormField]="isFormField"
+            ></app-validation-message>
+        </div>
+        <div>
+            <label for="branch">Branches:</label>
+            <div *ngFor="let list of branchList">
+                <input 
+                    type="radio" 
+                    name="branches"
+                    [value]="list"
+                    [checked]="list.isChecked"
+                    (change)="changeRadio(list)"
+                >
+                <label for="branches">{{list.location}}</label>
             </div>
-            <div>
-                <label for="lastName">Last Name</label>
-                <input type="text" name="lastName" [(ngModel)]="formState.lastName" required>
-            </div>
-            <div>
-                <label for="role">Role</label>
-                <select name="selectedRole" [(ngModel)]="formState.role" required>
-                    <option *ngFor="let role of roles" [ngValue]="role">{{ role }}</option>
-                </select>
-            </div>
-            <div>
-                <div>Branches:</div>
-                <label for="branch">Branches:</label>
-                <div *ngFor="let branch of o.b">
-                    <input 
-                        type="radio" 
-                        name="branch" 
-                        [checked]="branch.isChecked"
-                        (click)="checkRadio(branch,$event)"
-                    >
-                    <label for="branch">{{branch.location}}</label>
-                </div>
-            </div>
-            <div>
-                <input type="submit" value="Submit">
-            </div>
-        </form>
-    </ng-container>
+            <app-validation-message
+                [component]="branch"
+                message="Please select a branch"
+                [submitted]="submitted"
+                [isFormField]="isFormField"
+            ></app-validation-message>
+        </div>
+
+        <div>
+            <input type="submit" value="Submit">
+            <app-validation-message
+                [component]="form"
+                message="Please correct form fields"
+                [submitted]="submitted"
+                [isFormField]="!isFormField"
+            ></app-validation-message>
+        </div>
+    </form>
 </ng-container>

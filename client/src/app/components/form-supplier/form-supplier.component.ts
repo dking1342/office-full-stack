@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
@@ -18,27 +19,42 @@ export class FormSupplierComponent implements OnInit {
   @Output() closeForm = new EventEmitter<void>();
   @Output() refreshForm = new EventEmitter<FetchResponse<Supplier>>();
 
-  formState:Supplier = {
-    supplier_id:"",
-    sname:"",
-    products:[]
-  }
-  checkBoxProducts: ProductCheckBox[] = [];
+  // reactive form state
+  form=this.fb.group({
+    supplier_id:[""],
+    sname:["",Validators.required],
+    products:this.fb.array([])
+  });
+
+  // validation state
+  submitted:boolean = false;
+  isFormField:boolean = true;
+  
+  // view specific id
   supplier_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
 
+  // observables
   appStateForm$!: Observable<Appstate<FetchResponse<Supplier>>>;
   saveSubject = new BehaviorSubject<FetchResponse<Supplier>>(responseContent);
   isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();
   readonly DataState = Requeststatus;
+
   appStateProduct$!: Observable<Appstate<FetchResponse<Product>>>;
   productList = new BehaviorSubject<ProductCheckBox[]>([]);
   productList$ = this.productList.asObservable();
+  checkBoxProducts: ProductCheckBox[] = [];
 
   constructor(
     private router:Router,
     private fetchService:FetchService,
+    private fb: FormBuilder,
   ) { }
+
+  // getters for form state
+  get sname(){ return this.form.get("sname")};
+  get products(){ return this.form.get("products")};
+
 
   ngOnInit(): void {
     if(this.type === "save"){
@@ -46,21 +62,26 @@ export class FormSupplierComponent implements OnInit {
     }
     if(this.type === "edit"){
       this.getProducts();
-      this.formState = {
-        ...this.formState,
+
+      let productFormArray:FormArray = this.form.get("products") as FormArray;
+      this.data.appData!.data![0].products.forEach(item=>{
+        productFormArray.push(new FormControl(item));
+      });
+
+      this.form.patchValue({
         supplier_id:this.data.appData!.data![0].supplier_id,
         sname:this.data.appData!.data![0].sname,
-        products:this.data.appData!.data![0].products
-      }
+      });
     }
   }
 
   submitForm(){
-    if(this.type === "save"){
-      this.saveSupplier(this.formState);
+    this.submitted = true;
+    if(this.type === "save" && this.form.valid){
+      this.saveSupplier(this.form.value);
     }
-    if(this.type === "edit"){
-      this.updateSupplier(this.formState,this.supplier_id);
+    if(this.type === "edit" && this.form.valid){
+      this.updateSupplier(this.form.value,this.supplier_id);
     }
   }
 
@@ -70,31 +91,31 @@ export class FormSupplierComponent implements OnInit {
       .pipe(
         map(res=>{
           this.isLoadingSubject.next(false);
-          if(Object.values(this.data.appData!).length){
-            res.data?.flat(1).forEach(item=>{
+
+          if(this.type === "save"){
+            this.checkBoxProducts = res.data!.flat(1).map(item=>{
+              return {
+                ...item,
+                isChecked:false
+              }
+            })
+          }
+
+          if(this.type === "edit"){
+            this.checkBoxProducts = res.data!.flat(1).map(item=>{
               let isChecked = false;
               this.data.appData?.data![0].products.forEach(citem=>{
                 if(item.product_id === citem.product_id){
                   isChecked = true;
-                } 
+                }
               })
-              this.checkBoxProducts.push({
-                product_id:item.product_id,
-                pname:item.pname,
+              return {
+                ...item,
                 isChecked
-              })
+              }
             })
-            this.productList.next(this.checkBoxProducts);
-          } else {
-            res.data?.flat(1).forEach(item=>{
-              this.checkBoxProducts.push({
-                product_id:item.product_id,
-                pname:item.pname,
-                isChecked:false
-              })
-            })
-            this.productList.next(this.checkBoxProducts);
           }
+          this.productList.next(this.checkBoxProducts);
           return {
             dataState:Requeststatus.LOADED,
             appData:{
@@ -171,11 +192,18 @@ export class FormSupplierComponent implements OnInit {
   }
 
   checkedBox(product:Product,e:any){
+    const products:FormArray = this.form.get("products") as FormArray;
+    
     if(e.target.checked){
-      this.formState.products = [...this.formState.products, product];
+      products.push(new FormControl(product));      
     }
     if(!e.target.checked){
-      this.formState.products = this.formState.products.filter(item=>item.product_id !== product.product_id);
+      products.controls.forEach((item:any,i:number)=>{
+        if(item.value.product_id == product.product_id){
+          products.removeAt(i);
+          return;
+        }
+      });
     }
   }
 

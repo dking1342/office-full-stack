@@ -1,0 +1,18 @@
+<ng-container>
+    <ng-container *ngIf="isFormField">
+        <div
+            style="color:red;" 
+            *ngIf="component?.invalid && (component?.dirty || component?.touched || submitted)"
+        >
+            {{message}}
+        </div>
+    </ng-container>
+    <ng-container *ngIf="!isFormField">
+        <div
+            style="color:red;"
+            *ngIf="component.invalid && submitted"
+        >
+            {{message}}
+        </div>
+    </ng-container>
+</ng-container>

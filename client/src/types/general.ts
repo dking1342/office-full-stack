@@ -1,3 +1,5 @@
+import { AbstractControl } from "@angular/forms";
+
 export let responseContent = {
     timestamp:new Date(),
     HttpStatus:"",
@@ -77,4 +79,10 @@ export interface BranchRadio {
     location:string,
     branchStatus:string,
     isChecked:boolean
+}
+
+export interface submitValueType {
+    name:string,
+    value:string | null | number,
+    boolean:boolean
 }

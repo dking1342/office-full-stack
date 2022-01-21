@@ -4,15 +4,21 @@
 
 <ng-container *ngIf="{a:appStateProduct$ | async,b:productList$ | async} as o">
     <ng-container *ngIf="o.a && o.b">
-        <form>
+        <form [formGroup]="form" (ngSubmit)="submitForm()">
             <div>
                 <label for="sname">Name</label>
                 <input 
                     type="text" 
                     name="sname"
-                    [(ngModel)]="formState.sname"
-                    required
+                    autocomplete="off"
+                    formControlName="sname"
                 >
+                <app-validation-message
+                    [component]="sname"
+                    message="Please provide a supplier name"
+                    [submitted]="submitted"
+                    [isFormField]="isFormField"
+                ></app-validation-message>
             </div>
             <div>
                 <div for="supplier_products">Products:</div>
@@ -20,6 +26,7 @@
                     <input 
                         type="checkbox" 
                         name="product"
+                        [value]="product"
                         [checked]="product.isChecked"
                         (change)="checkedBox(product,$event)"
                     >
@@ -29,7 +36,13 @@
                 </div>
             </div>
             <div>
-                <button (click)="submitForm()">Submit</button>
+                <input type="submit" value="Submit">
+                <app-validation-message
+                    [component]="form"
+                    message="Please correct form fields"
+                    [submitted]="submitted"
+                    [isFormField]="!isFormField"
+                ></app-validation-message>
             </div>
         </form>
     </ng-container>

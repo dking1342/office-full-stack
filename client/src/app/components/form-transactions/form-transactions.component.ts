@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { TransactionTypes } from 'src/app/enums/transaction';
 import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { Customer, Employee, FetchResponse, Product, responseContent, Supplier, Transaction } from 'src/types/general';
+import { Customer, Employee, FetchResponse, Product, responseContent, submitValueType, Supplier, Transaction } from 'src/types/general';
 
 @Component({
   selector: 'app-form-transactions',
@@ -16,88 +16,126 @@ import { Customer, Employee, FetchResponse, Product, responseContent, Supplier, 
 export class FormTransactionsComponent implements OnInit {
   @Input() type = "";
   @Input() data:Appstate<FetchResponse<Transaction>> = {dataState:Requeststatus.LOADED,appData:{}};
-  @Input() supplierData:Supplier[] = [];
 
   @Output() closeForm = new EventEmitter<void>();
   @Output() refreshForm = new EventEmitter<FetchResponse<Transaction>>();
 
-  formState:Transaction = {
-    transaction_id:"",
-    employee:{id:"",firstName:"",lastName:"",role:"",branch:{branch_id:"",location:"",branchStatus:""}},
-    supplier:{supplier_id:"",sname:"",products:[]},
-    product:{product_id:"",pname:""},
-    customer:{customer_id:"",cname:""},
-    transactionType:"",
-    transaction_quantity:0
-  }
-  transaction_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
+  // form state
+  isEmployeeSelectShow:boolean = false;
+  isProductSelectShow:boolean = false;
+  isTransactionSelectShow:boolean = false;
+  isSupplierSelectShow:boolean = false;
+  isCustomerSelectShow:boolean = false;
 
+  // reactive form state
+  form = new FormGroup({});
+
+  // validation state
+  submitted:boolean = false;
+  isFormField:boolean = true;
+
+  // view specific id
+  transactions_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
+
+  // observables
   appStateForm$!: Observable<Appstate<FetchResponse<Transaction>>>;
   saveSubject = new BehaviorSubject<FetchResponse<Transaction>>(responseContent);
   isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();
   readonly DataState = Requeststatus;
+
   employees = new BehaviorSubject<Employee[]>([]);
   employees$ = this.employees.asObservable();
   customers = new BehaviorSubject<Customer[]>([]);
   customers$ = this.customers.asObservable();
   suppliers = new BehaviorSubject<Supplier[]>([]);
   suppliers$ = this.suppliers.asObservable();
+  filteredSuppliers:Supplier[] = [];
   products = new BehaviorSubject<Product[]>([]);
   products$ = this.products.asObservable();
   types:String[] = [];
 
-  
   constructor(
     private fetchService:FetchService,
     private router: Router,
-    private formbuilder:FormBuilder,
-    ) { }
+    private fb:FormBuilder,
+  ) { }
+
+  // getters for form state
+  get transaction_id(){ return this.form.get("transaction_id")};
+  get employee(){ return this.form.get("employee")};
+  get supplier(){ return this.form.get("supplier")};
+  get product(){ return this.form.get("product")};
+  get customer(){ return this.form.get("customer")};
+  get transactionType(){ return this.form.get("transactionType")};
+  get transaction_quantity(){ return this.form.get("transaction_quantity")};    
     
-    
-    ngOnInit(): void {
+  ngOnInit(): void {
     if(this.type === "save"){
       this.getEmployees();
       this.getProducts();
       this.getSuppliers();
       this.getCustomers();
-
+      this.form= this.fb.group({
+        transaction_id:[""],
+        employee:[null,Validators.required],
+        supplier:[null,Validators.required],
+        product:[null,Validators.required],
+        customer:[null,Validators.required],
+        transactionType:[null,Validators.required],
+        transaction_quantity:[1,Validators.required]
+      });
     }
+
     if(this.type === "edit"){
-      this.formState.transaction_id = this.transaction_id;
-      this.formState.employee = this.data.appData!.data![0].employee;
-      this.formState.product = this.data.appData!.data![0].product;
-      this.formState.transactionType = this.data.appData!.data![0].transactionType;
-      this.formState.supplier = this.data.appData!.data![0].supplier;
-      this.formState.customer = this.data.appData!.data![0].customer;
-      this.formState.transaction_quantity = this.data.appData!.data![0].transaction_quantity;
       this.getEmployees();
       this.getProducts();
       this.getSuppliers();
       this.getCustomers();
+      this.form = this.fb.group({
+        transaction_id:this.transactions_id,
+        employee:this.data.appData!.data![0].employee,
+        transactionType:this.data.appData!.data![0].transactionType,
+        product:this.data.appData!.data![0].product,
+        supplier:this.data.appData!.data![0].supplier,
+        customer:this.data.appData!.data![0].customer,
+        transaction_quantity:this.data.appData!.data![0].transaction_quantity
+      });
     }
-    this.types.push(TransactionTypes.BUY);
-    this.types.push(TransactionTypes.SELL);
+    Object.values(TransactionTypes).map(v=> this.types.push(v));
   }
 
   submitForm(){
-    if(this.formState.transactionType === "BUY"){
-      this.formState = {
-        ...this.formState,
-        customer:null
+    this.submitted = true;
+    let submitValue:submitValueType[] = [
+      {
+        name:"id",value:String(this.transaction_id?.value),boolean:Boolean(this.transaction_id?.value)
+      },
+      {
+        name:"employee",value:String(this.employee?.value),boolean:Boolean(this.employee?.value)
+      },
+      {
+        name:"supplier",value:String(this.supplier?.value),boolean:Boolean(this.supplier?.value)
+      },
+      {
+        name:"product",value:String(this.product?.value),boolean:Boolean(this.product?.value)
+      },
+      {
+        name:"type",value:String(this.transactionType?.value),boolean:Boolean(this.transactionType?.value)
+      },
+      {
+        name:"quantity",value:Number(this.transaction_quantity?.value),boolean:Boolean(String(this.transaction_quantity?.value))
+      },
+      {
+        name:"customer",value:String(this.customer?.value),boolean:Boolean(this.customer?.value)
       }
+    ];
+
+    if(this.type === "save" && this.checkTransactionType(submitValue)){
+      this.saveTransaction(this.form.value);
     }
-    if(this.formState.transactionType === "SELL"){
-      this.formState = {
-        ...this.formState,
-        supplier:null
-      }
-    }
-    if(this.type === "save"){
-      this.saveTransaction(this.formState);
-    }
-    if(this.type === "edit"){
-      this.updateTransaction(this.formState,this.transaction_id);
+    if(this.type === "edit" && this.checkTransactionType(submitValue)){
+      this.updateTransaction(this.form.value,this.transactions_id);
     }
 
   }
@@ -175,6 +213,7 @@ export class FormTransactionsComponent implements OnInit {
         })
       )
   }
+
   getProducts(){
     this.isLoadingSubject.next(true);
     this.products$ = this.fetchService.getProducts$("products/list")
@@ -190,6 +229,7 @@ export class FormTransactionsComponent implements OnInit {
         })
       )
   }
+
   getSuppliers(){
     this.isLoadingSubject.next(true);
     this.suppliers$ = this.fetchService.getSuppliers$("suppliers/list")
@@ -197,6 +237,13 @@ export class FormTransactionsComponent implements OnInit {
         map(res=>{
           this.isLoadingSubject.next(false);
           // filter through suppliers that have the product
+          if(this.type === 'edit'){
+            this.filteredSuppliers = res.data!.flat(1)
+              .filter(item=>{
+                return item.products.some(v=> v.pname === Object.values(this.product!.value)[1])
+              });
+          };
+
           this.suppliers.next(res.data!.flat(1));
           return this.suppliers.value;
         }),
@@ -206,6 +253,7 @@ export class FormTransactionsComponent implements OnInit {
         })
       )
   }
+
   getCustomers(){
     this.isLoadingSubject.next(true);
     this.customers$ = this.fetchService.getCustomers$("customers/list")
@@ -219,6 +267,49 @@ export class FormTransactionsComponent implements OnInit {
           return [];
         })
       )
+  }
+
+  checkTransactionType(inputArray:submitValueType[]){
+
+    if(inputArray.some(v=> v.name === "type" && v.value === "BUY")){
+      let checkValues =  inputArray
+        .filter(v=>v.name !== "id" && v.name !== "customer")
+        .every(v=>v.boolean === true);
+      
+      if(checkValues){
+        this.form.patchValue({
+          customer:null
+        });
+        return true;
+      } else {
+        return false;
+      }
+    } else if(inputArray.some(v=> v.name === "type" && v.value === "SELL")){
+      let checkValues = inputArray
+        .filter(v=>v.name !== "id" && v.name !== "supplier")
+        .every(v=>v.boolean === true);
+      
+      if(checkValues){
+        this.form.patchValue({
+          supplier:null
+        });
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+
+  }
+
+  filterSuppliers(){
+    if(this.transactionType?.value === "BUY" && this.product?.value){
+      this.filteredSuppliers = this.suppliers?.value
+        .filter(item=>{
+          return item.products.some(v=> v.pname === Object.values(this.product!.value)[1])
+        });
+    }
   }
 
 }
