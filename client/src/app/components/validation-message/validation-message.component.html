@@ -2,7 +2,7 @@
     <ng-container *ngIf="isFormField">
         <div
             style="color:red;" 
-            *ngIf="component?.invalid && (component?.dirty || component?.touched || submitted)"
+            *ngIf="(component?.invalid && (component?.dirty || component?.touched || submitted)) && type !== 'edit'"
         >
             {{message}}
         </div>

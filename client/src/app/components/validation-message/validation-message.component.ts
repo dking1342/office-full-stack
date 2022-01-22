@@ -11,6 +11,7 @@ export class ValidationMessageComponent implements OnInit {
   @Input() message:string = "";
   @Input() submitted:boolean = false;
   @Input() isFormField:boolean = true;
+  @Input() type:string = "";
 
 
   constructor() { }
