@@ -57,6 +57,104 @@ export const employeeReducer = createReducer(
         localStorage.setItem('employees',JSON.stringify(state));
         let localState = JSON.parse(localStorage.getItem('employees')!);
         return localState;
+    }),
+    on(EmployeeActions.ADD_EMPLOYEE,(state)=> state),
+    on(EmployeeActions.ADD_EMPLOYEE_LOADING,(state)=>{
+        state = {
+            ...state,
+            dataState:Requeststatus.LOADING
+        };
+        return state;
+    }),
+    on(EmployeeActions.ADD_EMPLOYEE_ERROR,(state,{error})=>{
+        state = {
+            ...state,
+            error
+        };
+        localStorage.setItem('employees',JSON.stringify(state));
+        let localState = JSON.parse(localStorage.getItem('employees')!);
+        return localState;
+    }),
+    on(EmployeeActions.ADD_EMPLOYEE_SUCCESS,(state,{res})=>{
+        state = {
+            ...state,
+            appData:{
+                ...state.appData,
+                data:[...state.appData?.data!,...res.appData?.data!]
+            },
+            filteredData:[...state.filteredData!,...res.appData?.data!]
+        };
+        localStorage.setItem('employees',JSON.stringify(state));
+        let localState = JSON.parse(localStorage.getItem('employees')!);
+        return localState;
+    }),
+    on(EmployeeActions.DELETE_EMPLOYEE,(state)=>state),
+    on(EmployeeActions.DELETE_EMPLOYEE_LOADING,(state)=>{
+        state = {
+            ...state,
+            dataState:Requeststatus.LOADING
+        }
+        return state;
+    }),
+    on(EmployeeActions.DELETE_EMPLOYEE_ERROR,(state,{error})=>{
+        state = {
+            ...state,
+            error
+        }
+        return state;
+    }),
+    on(EmployeeActions.DELETE_EMPLOYEE_SUCCESS,(state,{id})=>{
+        state = {
+            ...state,
+            appData:{
+                ...state.appData,
+                data:state.appData?.data!.filter(val=> val.id !== id)
+            },
+            filteredData:state.filteredData?.filter(val=> val.id !== id)
+        }
+        localStorage.setItem('employees',JSON.stringify(state));
+        let localState = JSON.parse(localStorage.getItem('employees')!);
+        return localState;
+    }),
+    on(EmployeeActions.UPDATE_EMPLOYEE,(state)=>state),
+    on(EmployeeActions.UPDATE_EMPLOYEE_LOADING,(state)=>{
+        state = {
+            ...state,
+            dataState:Requeststatus.LOADING
+        }
+        return state;
+    }),
+    on(EmployeeActions.UPDATE_EMPLOYEE_ERROR,(state,{error})=>{
+        state = {
+            ...state,
+            error
+        }
+        return state;
+    }),
+    on(EmployeeActions.UPDATE_EMPLOYEE_SUCCESS,(state,{res})=>{
+        state = {
+            ...state,
+            appData:{
+                ...state.appData,
+                data:state.appData?.data!.map(val=>{
+                    if(val.id === res.appData?.data![0].id){
+                        return res.appData.data![0];
+                    } else {
+                        return val;
+                    }
+                })
+            },
+            filteredData:state.filteredData?.map(val=>{
+                if(val.id === res.appData?.data![0].id){
+                    return res.appData.data![0];
+                } else {
+                    return val;
+                }
+            })
+        };
+        localStorage.setItem('employees',JSON.stringify(state));
+        let localState = JSON.parse(localStorage.getItem('employees')!);
+        return localState;
     })
 
 )

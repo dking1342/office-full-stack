@@ -13,7 +13,7 @@
             *ngIf="showAddForm" 
             [type]="formType" 
             (closeForm)="closeAddForm()"
-            (refreshForm)="refreshEmployeeView($event)"
+            (refreshForm)="refreshEmployeeView()"
         ></app-form-emps>
     
         <table>
@@ -46,7 +46,7 @@
             <app-form-emps 
                 [type]="formType" 
                 (closeForm)="closeEditForm()"
-                (refreshForm)="refreshEmployeeView($event)"
+                (refreshForm)="refreshEmployeeView()"
             ></app-form-emps>
         </ng-container>
         

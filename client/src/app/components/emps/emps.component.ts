@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Requeststatus } from 'src/app/enums/requeststatus';
-import { GET_EMPLOYEES, GET_EMPLOYEES_SAVED, GET_EMPLOYEES_SUCCESS } from 'src/app/store/actions/employeeActions';
+import { DELETE_EMPLOYEE, GET_EMPLOYEES, GET_EMPLOYEES_SAVED, GET_EMPLOYEES_SUCCESS } from 'src/app/store/actions/employeeActions';
 import { selectEmployeeDataState, selectEmployeeError, selectEmployeeFilteredData } from 'src/app/store/selectors/employeeSelector';
 import { Employee, FetchResponse, ResponseAppState } from 'src/types/general';
 
@@ -49,7 +49,6 @@ export class EmpsComponent implements OnInit {
   }
 
   onGetEmployees(url:string,urlLength:number){
-    
     // if localstorage is null
     if(localStorage.getItem('employees')){
       // localstorage state
@@ -79,11 +78,10 @@ export class EmpsComponent implements OnInit {
     }
   }
 
-
-
   onDelete(id:string){
     if(confirm("Are you sure you want to delete this employee?")){
-      console.log(id);
+      this.store.dispatch(DELETE_EMPLOYEE({id}));
+      this.router.navigate(['employees']);
     }
   }
 
@@ -97,10 +95,8 @@ export class EmpsComponent implements OnInit {
   closeEditForm(){
     this.showEditForm = !this.showEditForm;
   }
-  refreshEmployeeView(response:FetchResponse<Employee>){
-    if(response.statusCode === 200){
-      this.getData(this.url.split("/").length);
-    }
+  refreshEmployeeView(){
+    this.getData(this.url.split("/").length);
   }
 
 }
