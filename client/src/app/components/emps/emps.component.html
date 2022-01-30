@@ -1,4 +1,4 @@
-<ng-container *ngIf="(appState$ | async) as appState" [ngSwitch]="appState.dataState">
+<ng-container *ngIf="(loadState$ | async) as loadState" [ngSwitch]="loadState">
     <ng-container *ngSwitchCase="DataState.LOADING">
         loading...
     </ng-container>
@@ -9,13 +9,13 @@
                 <button (click)="showAddForm = !showAddForm">Add</button>
             </span>
         </h1>
-        <app-form-employee 
+        <app-form-emps 
             *ngIf="showAddForm" 
             [type]="formType" 
             (closeForm)="closeAddForm()"
             (refreshForm)="refreshEmployeeView($event)"
-        ></app-form-employee>
-
+        ></app-form-emps>
+    
         <table>
             <thead>
                 <tr>
@@ -29,30 +29,31 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let employee of (appState.appData?.data || [])">
+                <tr *ngFor="let employee of (data$ | async)">
                     <td>{{employee.firstName}}</td>
                     <td>{{employee.lastName}}</td>
                     <td>{{employee.role.slice(0,1) + employee.role.slice(1).toLowerCase()}}</td>
                     <td>{{employee.branch.location.slice(0,1) + employee.branch.location.toLowerCase().slice(1)}}</td>
                     <td *ngIf="isAll"><button (click)="getInfo(employee.id)">Info</button></td>
                     <td *ngIf="!isAll"><button (click)="showEditForm = !showEditForm">Edit</button></td>
-                    <td *ngIf="!isAll"><button (click)="deleteEmployee(employee.id)">Delete</button></td>
+                    <td *ngIf="!isAll"><button (click)="onDelete(employee.id)">Delete</button></td>
                 </tr>
             </tbody>    
         </table>
-
+    
         <ng-container *ngIf="showEditForm">
             <h3>Edit {{ title }}</h3>
-            <app-form-employee 
+            <app-form-emps 
                 [type]="formType" 
-                [data]="appState"
                 (closeForm)="closeEditForm()"
                 (refreshForm)="refreshEmployeeView($event)"
-            ></app-form-employee>
+            ></app-form-emps>
         </ng-container>
         
     </ng-container>
     <ng-container *ngSwitchCase="DataState.ERROR">
-        {{appState.error}}
+        {{ error$ | async }}
     </ng-container>
+
 </ng-container>
+

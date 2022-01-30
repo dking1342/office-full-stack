@@ -19,6 +19,14 @@ import { ProductsComponent } from './components/products/products.component';
 import { SuppliersComponent } from './components/suppliers/suppliers.component';
 import { TransactionsComponent } from './components/transactions/transactions.component';
 import { ValidationMessageComponent } from './components/validation-message/validation-message.component';
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { environment } from '../environments/environment';
+import { employeeReducer } from './store/reducers/employeeReducer';
+import { EmployeeEffects } from './store/effects/employeeEffects';
+import { EmpsComponent } from './components/emps/emps.component';
+import { FormEmpsComponent } from './components/form-emps/form-emps.component';
 
 
 @NgModule({
@@ -39,6 +47,8 @@ import { ValidationMessageComponent } from './components/validation-message/vali
     TransactionsComponent,
     FormTransactionsComponent,
     ValidationMessageComponent,
+    EmpsComponent,
+    FormEmpsComponent,
   ],
   imports: [
     BrowserModule,
@@ -46,6 +56,12 @@ import { ValidationMessageComponent } from './components/validation-message/vali
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
+    StoreModule.forRoot({
+      employees:employeeReducer,
+
+    }, {}),
+    EffectsModule.forRoot([EmployeeEffects]),
+    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
   ],
   providers: [],
   bootstrap: [AppComponent]

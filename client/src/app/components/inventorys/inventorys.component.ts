@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
-import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { FetchResponse, Inventory } from 'src/types/general';
+import { FetchResponse, Inventory, ResponseAppState } from 'src/types/general';
 
 @Component({
   selector: 'app-inventorys',
@@ -12,7 +11,7 @@ import { FetchResponse, Inventory } from 'src/types/general';
 })
 export class InventorysComponent implements OnInit {
 
-  appState$!: Observable<Appstate<FetchResponse<Inventory>>>;
+  appState$!: Observable<ResponseAppState<FetchResponse<Inventory>>>;
   isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();
   readonly DataState = Requeststatus;

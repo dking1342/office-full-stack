@@ -26,13 +26,16 @@
             [isFormField]="isFormField"
         ></app-validation-message>
     </div>
+    <table>
+        <thead>
+            <th>Name</th>
+        </thead>
+        <tbody>
+            <td>{{ pname?.value }}</td>
+        </tbody>
+    </table>
+    <br>
     <div>
         <input type="submit" value="Submit">
-        <app-validation-message
-            [component]="form"
-            message="Please correct form fields"
-            [submitted]="submitted"
-            [isFormField]="!isFormField"
-        ></app-validation-message>
     </div>
 </form>

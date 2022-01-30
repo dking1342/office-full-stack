@@ -3,9 +3,8 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
-import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { Customer, FetchResponse, responseContent } from 'src/types/general';
+import { Customer, FetchResponse, ResponseAppState, responseContent } from 'src/types/general';
 
 @Component({
   selector: 'app-form-customer',
@@ -14,7 +13,7 @@ import { Customer, FetchResponse, responseContent } from 'src/types/general';
 })
 export class FormCustomerComponent implements OnInit {
   @Input() type = "";
-  @Input() data:Appstate<FetchResponse<Customer>> = {dataState:Requeststatus.LOADED,appData:{}};
+  @Input() data:ResponseAppState<FetchResponse<Customer>> = {dataState:Requeststatus.LOADED,appData:{}};
 
   @Output() closeForm = new EventEmitter();
   @Output() refreshForm = new EventEmitter<FetchResponse<Customer>>();
@@ -28,13 +27,12 @@ export class FormCustomerComponent implements OnInit {
   // validation state
   submitted:boolean = false;
   isFormField:boolean = true;
-  isSubmitField:boolean = false;
 
   // view specific id 
   customer_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
 
   // observables
-  appStateForm$!: Observable<Appstate<FetchResponse<Customer>>>;
+  appStateForm$!: Observable<ResponseAppState<FetchResponse<Customer>>>;
   saveSubject = new BehaviorSubject<FetchResponse<Customer>>(responseContent);
   isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();

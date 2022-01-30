@@ -3,9 +3,8 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
-import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { FetchResponse, Product, responseContent } from 'src/types/general';
+import { FetchResponse, Product, ResponseAppState, responseContent } from 'src/types/general';
 
 @Component({
   selector: 'app-form-product',
@@ -14,7 +13,7 @@ import { FetchResponse, Product, responseContent } from 'src/types/general';
 })
 export class FormProductComponent implements OnInit {
   @Input() type = "";
-  @Input() data:Appstate<FetchResponse<Product>> = {dataState:Requeststatus.LOADED,appData:{}};
+  @Input() data:ResponseAppState<FetchResponse<Product>> = {dataState:Requeststatus.LOADED,appData:{}};
 
   @Output() closeForm = new EventEmitter();
   @Output() refreshForm = new EventEmitter<FetchResponse<Product>>();
@@ -32,7 +31,7 @@ export class FormProductComponent implements OnInit {
   // view specific id
   product_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
 
-  appStateForm$!: Observable<Appstate<FetchResponse<Product>>>;
+  appStateForm$!: Observable<ResponseAppState<FetchResponse<Product>>>;
   saveSubject = new BehaviorSubject<FetchResponse<Product>>(responseContent);
   isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();

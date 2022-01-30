@@ -1,12 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { BehaviorSubject, catchError, combineLatest, combineLatestAll, filter, map, mapTo, Observable, of, startWith, tap } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { Roles } from 'src/app/enums/roles';
-import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { Branch, BranchRadio, Employee, FetchResponse, responseContent } from 'src/types/general';
+import { Branch, Employee, FetchResponse, ResponseAppState, responseContent } from 'src/types/general';
 
 @Component({
   selector: 'app-form-employee',
@@ -15,7 +14,7 @@ import { Branch, BranchRadio, Employee, FetchResponse, responseContent } from 's
 })
 export class FormEmployeeComponent implements OnInit {
   @Input() type = "";
-  @Input() data:Appstate<FetchResponse<Employee>> = {dataState:Requeststatus.LOADED,appData:{}};
+  @Input() data:ResponseAppState<FetchResponse<Employee>> = {dataState:Requeststatus.LOADED,appData:{}};
   
   @Output() refreshForm = new EventEmitter<FetchResponse<Employee>>();
   @Output() closeForm = new EventEmitter<void>();
@@ -26,9 +25,18 @@ export class FormEmployeeComponent implements OnInit {
     firstName:["",Validators.required],
     lastName:["",Validators.required],
     role:["",Validators.required],
-    branch:[null,Validators.required]
+    branch:this.fb.group({
+      branch_id:["",Validators.required],
+      location:["",Validators.required],
+      branchStatus:["",Validators.required]
+    })
   });
   roles: Roles[] = [];
+
+  // reactive form state -- select elements
+  selectForm = this.fb.group({
+    branchDrop:[null,Validators.required]
+  })
 
   // validation state
   submitted:boolean = false;
@@ -38,16 +46,15 @@ export class FormEmployeeComponent implements OnInit {
   employee_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
 
   // observables
-  appStateForm$!: Observable<Appstate<FetchResponse<Employee>>>;
+  appStateForm$!: Observable<ResponseAppState<FetchResponse<Employee>>>;
   saveSubject = new BehaviorSubject<FetchResponse<Employee>>(responseContent);
   isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();
   readonly DataState = Requeststatus;
 
-  appStateBranch$!: Observable<Appstate<FetchResponse<Branch>>>;
-  branchList = new BehaviorSubject<BranchRadio[]>([]);
+  appStateBranch$!: Observable<ResponseAppState<FetchResponse<Branch>>>;
+  branchList = new BehaviorSubject<Branch[]>([]);
   branchList$ = this.branchList.asObservable();
-  radioBranchArray:BranchRadio[] = [];
 
   constructor(
     private fetchService: FetchService,
@@ -55,11 +62,16 @@ export class FormEmployeeComponent implements OnInit {
     private fb:FormBuilder,
   ) { }
 
+  // getters for select form state
+  get branchDrop(){ return this.selectForm.get("branchDrop")};
+
   // getters for form state
   get firstName(){ return this.form.get("firstName")};
   get lastName(){ return this.form.get("lastName")};
   get role(){ return this.form.get("role")};
-  get branch(){ return this.form.get("branch")};
+  get branch_id(){ return this.form.controls['branch'].get("branch_id") };
+  get location(){ return this.form.controls['branch'].get("location") };
+  get branchStatus(){ return this.form.controls['branch'].get("branchStatus") };
 
   ngOnInit(): void {
     if(this.type === "save"){
@@ -67,17 +79,20 @@ export class FormEmployeeComponent implements OnInit {
     }
     if(this.type === "edit"){
       this.getBranches();
-      this.form.setValue({
-        id:this.employee_id,
-        firstName:this.data.appData!.data![0].firstName,
-        lastName:this.data.appData!.data![0].lastName,
-        role:this.data.appData!.data![0].role,
-        branch:this.data.appData!.data![0].branch
+      this.form = this.fb.group({
+        id:[this.data.appData!.data![0].id],
+        firstName:[this.data.appData!.data![0].firstName],
+        lastName:[this.data.appData!.data![0].lastName],
+        role:[this.data.appData!.data![0].role],
+        branch:this.fb.group({
+          branch_id:[this.data.appData!.data![0].branch.branch_id],
+          location:[this.data.appData!.data![0].branch.location],
+          branchStatus:[this.data.appData!.data![0].branch.branchStatus]
+        })
       });
     }
     Object.values(Roles).map(v=> this.roles.push(v));
   }
-
 
   submitForm(){
     this.submitted = true;
@@ -95,33 +110,7 @@ export class FormEmployeeComponent implements OnInit {
       .pipe(
         map(res=>{
           this.isLoadingSubject.next(false); 
-
-          if(this.type === "save"){
-            this.radioBranchArray = res.data!.flat(1).map(item=>{
-              return {
-                ...item,
-                isChecked:false
-              }
-            });
-          }
-
-          if(this.type === "edit"){
-            this.radioBranchArray = res.data!.flat(1).map(item=>{
-              if(item.branch_id === this.data.appData!.data![0].branch.branch_id){
-                return {
-                  ...item,
-                  isChecked:true
-                }
-              } else {
-                return {
-                  ...item,
-                  isChecked:false
-                }
-              }
-            })
-          }
-          this.branchList.next(this.radioBranchArray);
-          return this.radioBranchArray;
+          return res.data!.flat(1);
         }),
         catchError(()=>{
           this.isLoadingSubject.next(false);
@@ -190,14 +179,10 @@ export class FormEmployeeComponent implements OnInit {
       )
   }
 
-  changeRadio(branch:Branch){
-    this.form.patchValue({
-      branch:{
-        branch_id:branch.branch_id,
-        location:branch.location,
-        branchStatus:branch.branchStatus
-      }
-    })
+  changeBranch(){
+    this.branch_id?.setValue(this.branchDrop?.value.branch_id);
+    this.location?.setValue(this.branchDrop?.value.location);
+    this.branchStatus?.setValue(this.branchDrop?.value.branchStatus);
   }
 
 }

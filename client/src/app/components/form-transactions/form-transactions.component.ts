@@ -1,12 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { TransactionTypes } from 'src/app/enums/transaction';
-import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { Customer, Employee, FetchResponse, Product, responseContent, submitValueType, Supplier, Transaction } from 'src/types/general';
+import { Customer, Employee, FetchResponse, Product, ResponseAppState, responseContent, submitValueType, Supplier, Transaction } from 'src/types/general';
 
 @Component({
   selector: 'app-form-transactions',
@@ -15,7 +14,7 @@ import { Customer, Employee, FetchResponse, Product, responseContent, submitValu
 })
 export class FormTransactionsComponent implements OnInit {
   @Input() type = "";
-  @Input() data:Appstate<FetchResponse<Transaction>> = {dataState:Requeststatus.LOADED,appData:{}};
+  @Input() data:ResponseAppState<FetchResponse<Transaction>> = {dataState:Requeststatus.LOADED,appData:{}};
 
   @Output() closeForm = new EventEmitter<void>();
   @Output() refreshForm = new EventEmitter<FetchResponse<Transaction>>();
@@ -101,7 +100,7 @@ export class FormTransactionsComponent implements OnInit {
   transactions_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
 
   // observables
-  appStateForm$!: Observable<Appstate<FetchResponse<Transaction>>>;
+  appStateForm$!: Observable<ResponseAppState<FetchResponse<Transaction>>>;
   saveSubject = new BehaviorSubject<FetchResponse<Transaction>>(responseContent);
   isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();
@@ -438,7 +437,6 @@ export class FormTransactionsComponent implements OnInit {
         .filter(v=>v.name !== "id" && v.name !== "supplier")
         .every(v=>v.boolean === true);
       
-      console.log(inputArray);
       if(checkValues){
         this.transactionForm = this.fb.group({
           transaction_id:[this.transaction_id,Validators.required],

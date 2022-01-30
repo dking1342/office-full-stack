@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { BehaviorSubject, catchError, map, Observable, of, startWith, Subject } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
-import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { Employee, FetchResponse, responseContent } from 'src/types/general';
+import { GET_EMPLOYEES } from 'src/app/store/actions/employeeActions';
+import { Employee, FetchResponse, ResponseAppState, responseContent } from 'src/types/general';
 
 @Component({
   selector: 'app-employees',
@@ -13,7 +14,7 @@ import { Employee, FetchResponse, responseContent } from 'src/types/general';
 })
 export class EmployeesComponent implements OnInit {
   
-  appState$!: Observable<Appstate<FetchResponse<Employee>>>;
+  appState$!: Observable<ResponseAppState<FetchResponse<Employee>>>;
   isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();
   dataSubject = new BehaviorSubject<FetchResponse<Employee>>(responseContent);
@@ -29,11 +30,25 @@ export class EmployeesComponent implements OnInit {
 
   constructor(
     private fetchService: FetchService,
-    private router: Router
+    private router: Router,
+    private store: Store<ResponseAppState<Employee>>
   ) { }
+  state$ = this.store.select(state=>state);
+  employeeState = new Subject<ResponseAppState<FetchResponse<Employee>>>();
+  employeeState$ = this.employeeState.asObservable();
+  
+  
+  onGetEmployees(){
+    this.store.dispatch(GET_EMPLOYEES({url:"employees/list"})); 
+
+    this.state$.forEach(observer =>{
+      let data = Object.values(observer).map(item=>item)[0];
+      this.employeeState.next(data);      
+    })
+  }
 
   ngOnInit(): void {
-    this.getData(this.url.split("/").length);  
+    this.getData(this.url.split("/").length); 
   }
 
   getData(urlLength:number){
@@ -72,7 +87,33 @@ export class EmployeesComponent implements OnInit {
   }
 
   deleteEmployee(id:string){
-    console.log(id);
+    let isDelete = confirm("Are you sure you want to delete this employee?");
+    if(isDelete){
+      this.isLoadingSubject.next(true);
+      this.appState$ = this.fetchService.deleteEmployee$(id)
+        .pipe(
+          map(res=>{
+            this.isLoadingSubject.next(false);
+            this.router.navigate(['employees']);
+            return {
+              dataState:Requeststatus.LOADED,
+              appData:{
+                ...res
+              }
+            }
+          }),
+          startWith({
+            dataState:Requeststatus.LOADING
+          }),
+          catchError((error:string)=>{
+            this.isLoadingSubject.next(false);
+            return of({
+              dataState:Requeststatus.ERROR,
+              error
+            })
+          })
+        )
+    }
   }
 
   getInfo(id:string){

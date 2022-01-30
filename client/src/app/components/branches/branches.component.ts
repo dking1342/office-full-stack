@@ -2,9 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
-import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { Branch, FetchResponse, responseContent } from 'src/types/general';
+import { Branch, FetchResponse, ResponseAppState, responseContent } from 'src/types/general';
 
 @Component({
   selector: 'app-branches',
@@ -13,7 +12,7 @@ import { Branch, FetchResponse, responseContent } from 'src/types/general';
 })
 export class BranchesComponent implements OnInit {
 
-  appState$!: Observable<Appstate<FetchResponse<Branch>>>;
+  appState$!: Observable<ResponseAppState<FetchResponse<Branch>>>;
   readonly DataState = Requeststatus;
   dataSubject = new BehaviorSubject<FetchResponse<Branch>>(responseContent);
   isLoadingSubject = new BehaviorSubject<boolean>(false);

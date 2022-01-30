@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { BranchesComponent } from './components/branches/branches.component';
 import { CustomersComponent } from './components/customers/customers.component';
 import { EmployeesComponent } from './components/employees/employees.component';
+import { EmpsComponent } from './components/emps/emps.component';
 import { InventorysComponent } from './components/inventorys/inventorys.component';
 import { ProductsComponent } from './components/products/products.component';
 import { SuppliersComponent } from './components/suppliers/suppliers.component';
@@ -11,11 +12,11 @@ import { TransactionsComponent } from './components/transactions/transactions.co
 const routes: Routes = [
   {
     path:"employees",
-    component:EmployeesComponent
+    component:EmpsComponent
   },
   {
     path:"employees/:id",
-    component:EmployeesComponent
+    component:EmpsComponent
   },
   {
     path:"branches",

@@ -2,9 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
-import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { Employee, FetchResponse, responseContent, Transaction } from 'src/types/general';
+import { Employee, FetchResponse, ResponseAppState, responseContent, Transaction } from 'src/types/general';
 
 @Component({
   selector: 'app-transactions',
@@ -13,7 +12,7 @@ import { Employee, FetchResponse, responseContent, Transaction } from 'src/types
 })
 export class TransactionsComponent implements OnInit {
 
-  appState$!: Observable<Appstate<FetchResponse<Transaction>>>;
+  appState$!: Observable<ResponseAppState<FetchResponse<Transaction>>>;
   dataSubject = new BehaviorSubject<FetchResponse<Transaction>>(responseContent);
   isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();

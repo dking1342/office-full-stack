@@ -4,9 +4,8 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { Status } from 'src/app/enums/status';
-import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { Branch, FetchResponse, responseContent } from 'src/types/general';
+import { Branch, FetchResponse, ResponseAppState, responseContent } from 'src/types/general';
 
 @Component({
   selector: 'app-form-branch',
@@ -15,7 +14,7 @@ import { Branch, FetchResponse, responseContent } from 'src/types/general';
 })
 export class FormBranchComponent implements OnInit {
   @Input() type = "";
-  @Input() data:Appstate<FetchResponse<Branch>> = {dataState:Requeststatus.LOADED,appData:{}};
+  @Input() data:ResponseAppState<FetchResponse<Branch>> = {dataState:Requeststatus.LOADED,appData:{}};
 
   @Output() closeForm = new EventEmitter();
   @Output() refreshForm = new EventEmitter<FetchResponse<Branch>>();
@@ -27,23 +26,22 @@ export class FormBranchComponent implements OnInit {
     branchStatus:["",Validators.required]
   });
 
-  formState:Branch = {
-    branch_id:"",
-    location:"",
-    branchStatus:""
-  }
+  // reactive select state
+  selectForm = this.fb.group({
+    status:[null,Validators.required]
+  })
+
   locationStatus: Status[] = [];
 
   // validation state
   submitted:boolean = false;
   isFormField:boolean = true;
-  isSubmitField:boolean = false;
   
   // view specific id
   b_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
 
   // observables
-  appStateForm$!: Observable<Appstate<FetchResponse<Branch>>>;
+  appStateForm$!: Observable<ResponseAppState<FetchResponse<Branch>>>;
   saveSubject = new BehaviorSubject<FetchResponse<Branch>>(responseContent);
   isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();
@@ -55,6 +53,9 @@ export class FormBranchComponent implements OnInit {
     private fb: FormBuilder,
   ) { }
 
+  // getters for select state
+  get status(){ return this.selectForm.get("status")};
+
   // getters for form state
   get location(){ return this.form.get("location")};
   get branchStatus(){ return this.form.get("branchStatus")};
@@ -63,12 +64,11 @@ export class FormBranchComponent implements OnInit {
     Object.values(Status).map(v=> this.locationStatus.push(v));
 
     if(this.type === "edit"){
-      this.form.setValue({
+      this.form = this.fb.group({
         branch_id:this.data.appData!.data![0].branch_id,
         location:this.data.appData!.data![0].location,
         branchStatus:this.data.appData!.data![0].branchStatus
-      })
-      console.log(this.form.value);
+      });
     }
   }
 
@@ -134,6 +134,10 @@ export class FormBranchComponent implements OnInit {
           })
         })
       )
+  }
+
+  changeStatus(){
+    this.branchStatus?.setValue(this.status?.value);
   }
 
 

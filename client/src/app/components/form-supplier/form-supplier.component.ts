@@ -3,9 +3,8 @@ import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms'
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
-import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { FetchResponse, Product, ProductCheckBox, responseContent, Supplier } from 'src/types/general';
+import { FetchResponse, Product, ProductCheckBox, ResponseAppState, responseContent, Supplier } from 'src/types/general';
 
 @Component({
   selector: 'app-form-supplier',
@@ -14,7 +13,7 @@ import { FetchResponse, Product, ProductCheckBox, responseContent, Supplier } fr
 })
 export class FormSupplierComponent implements OnInit {
   @Input() type:string = "";
-  @Input() data:Appstate<FetchResponse<Supplier>> = {dataState:Requeststatus.LOADED,appData:{}};
+  @Input() data:ResponseAppState<FetchResponse<Supplier>> = {dataState:Requeststatus.LOADED,appData:{}};
   
   @Output() closeForm = new EventEmitter<void>();
   @Output() refreshForm = new EventEmitter<FetchResponse<Supplier>>();
@@ -34,13 +33,13 @@ export class FormSupplierComponent implements OnInit {
   supplier_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
 
   // observables
-  appStateForm$!: Observable<Appstate<FetchResponse<Supplier>>>;
+  appStateForm$!: Observable<ResponseAppState<FetchResponse<Supplier>>>;
   saveSubject = new BehaviorSubject<FetchResponse<Supplier>>(responseContent);
   isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();
   readonly DataState = Requeststatus;
 
-  appStateProduct$!: Observable<Appstate<FetchResponse<Product>>>;
+  appStateProduct$!: Observable<ResponseAppState<FetchResponse<Product>>>;
   productList = new BehaviorSubject<ProductCheckBox[]>([]);
   productList$ = this.productList.asObservable();
   checkBoxProducts: ProductCheckBox[] = [];

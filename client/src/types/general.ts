@@ -1,4 +1,4 @@
-import { AbstractControl } from "@angular/forms";
+import { Requeststatus } from "src/app/enums/requeststatus";
 
 export let responseContent = {
     timestamp:new Date(),
@@ -85,4 +85,11 @@ export interface submitValueType {
     name:string,
     value:string | null | number,
     boolean:boolean
+}
+
+export interface ResponseAppState<T> {
+    dataState: Requeststatus;
+    appData?:T;
+    error?:string;
+    filteredData?:Employee[];
 }

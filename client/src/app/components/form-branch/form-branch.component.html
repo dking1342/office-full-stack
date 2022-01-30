@@ -26,10 +26,14 @@
             [isFormField]="isFormField"
         ></app-validation-message>
     </div>
-    <div>
+    <div [formGroup]="selectForm">
         <label for="branchStatus">Status: </label>
-        <select name="branchStatus" formControlName="branchStatus">
-            <option [ngValue]="null" disabled>Choose status</option>
+        <select 
+            name="branchStatus" 
+            formControlName="status"
+            (change)="changeStatus()"
+        >
+            <option [value]="null" disabled>Choose status</option>
             <option 
                 *ngFor="let status of locationStatus" 
                 [ngValue]="status"
@@ -38,19 +42,30 @@
             </option>
         </select>
         <app-validation-message
-            [component]="branchStatus"
+            [component]="status"
             message="Please select a status"
             [submitted]="submitted"
             [isFormField]="isFormField"
         ></app-validation-message>
     </div>
+
+    <table>
+        <thead>
+            <th>Location</th>
+            <th>Status</th>
+        </thead>
+        <tbody>
+            <td>{{ location?.value }}</td>
+            <td>{{ branchStatus?.value }}</td>
+        </tbody>
+    </table>
     <div>
         <input type="submit" value="Submit">
-        <app-validation-message
+        <!-- <app-validation-message
             [component]="form"
             message="Please correct form fields"
             [submitted]="submitted"
             [isFormField]="isSubmitField"
-        ></app-validation-message>
+        ></app-validation-message> -->
     </div>
 </form>

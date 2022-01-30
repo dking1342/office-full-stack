@@ -2,9 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, map, Observable, of, startWith } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
-import { Appstate } from 'src/app/interfaces/appstate';
 import { FetchService } from 'src/app/services/fetch.service';
-import { FetchResponse, Product, responseContent } from 'src/types/general';
+import { FetchResponse, Product, ResponseAppState, responseContent } from 'src/types/general';
 
 @Component({
   selector: 'app-products',
@@ -13,7 +12,7 @@ import { FetchResponse, Product, responseContent } from 'src/types/general';
 })
 export class ProductsComponent implements OnInit {
 
-  appState$!: Observable<Appstate<FetchResponse<Product>>>;
+  appState$!: Observable<ResponseAppState<FetchResponse<Product>>>;
   dataSubject = new BehaviorSubject<FetchResponse<Product>>(responseContent);
   isLoadingSubject = new BehaviorSubject<boolean>(false);
   isLoading$ = this.isLoadingSubject.asObservable();
