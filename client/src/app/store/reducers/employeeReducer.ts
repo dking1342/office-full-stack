@@ -16,7 +16,7 @@ export const initialState: ResponseAppState<FetchResponse<Employee>> = {
         boolData:false
     },
     error:"",
-    filteredData:[]
+    filteredEmployeeData:[]
 }
 
 
@@ -44,7 +44,7 @@ export const employeeReducer = createReducer(
     on(EmployeeActions.GET_EMPLOYEES_SUCCESS, (state,{res}) => {
         state = {
             ...res,
-            filteredData:res.appData?.data
+            filteredEmployeeData:res.appData?.data
         };
         localStorage.setItem('employees',JSON.stringify(state));
         let localState = JSON.parse(localStorage.getItem('employees')!);
@@ -82,7 +82,7 @@ export const employeeReducer = createReducer(
                 ...state.appData,
                 data:[...state.appData?.data!,...res.appData?.data!]
             },
-            filteredData:[...state.filteredData!,...res.appData?.data!]
+            filteredEmployeeData:[...state.filteredEmployeeData!,...res.appData?.data!]
         };
         localStorage.setItem('employees',JSON.stringify(state));
         let localState = JSON.parse(localStorage.getItem('employees')!);
@@ -110,7 +110,7 @@ export const employeeReducer = createReducer(
                 ...state.appData,
                 data:state.appData?.data!.filter(val=> val.id !== id)
             },
-            filteredData:state.filteredData?.filter(val=> val.id !== id)
+            filteredEmployeeData:state.filteredEmployeeData?.filter(val=> val.id !== id)
         }
         localStorage.setItem('employees',JSON.stringify(state));
         let localState = JSON.parse(localStorage.getItem('employees')!);
@@ -144,7 +144,7 @@ export const employeeReducer = createReducer(
                     }
                 })
             },
-            filteredData:state.filteredData?.map(val=>{
+            filteredEmployeeData:state.filteredEmployeeData?.map(val=>{
                 if(val.id === res.appData?.data![0].id){
                     return res.appData.data![0];
                 } else {

@@ -29,7 +29,7 @@ export class FormBranchComponent implements OnInit {
   // reactive select state
   selectForm = this.fb.group({
     status:[null,Validators.required]
-  })
+  });
 
   locationStatus: Status[] = [];
 

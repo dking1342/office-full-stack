@@ -1,0 +1,65 @@
+<ng-container *ngIf="(loadState$ | async) as loadState" [ngSwitch]="loadState">
+    <ng-container *ngSwitchCase="DataState.LOADING">
+        loading...
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.LOADED">
+        <form [formGroup]="form" (ngSubmit)="submitForm()">
+            <div>
+                <label for="sname">Name</label>
+                <input 
+                    type="text" 
+                    name="sname"
+                    autocomplete="off"
+                    formControlName="sname"
+                >
+                <app-validation-message
+                    [component]="sname"
+                    message="Please provide a supplier name"
+                    [submitted]="submitted"
+                    [isFormField]="isFormField"
+                ></app-validation-message>
+            </div>
+            <div>
+                <div for="supplier_products">Products:</div>
+                <div *ngFor="let product of (productList$ | async)">
+                    <input 
+                        type="checkbox" 
+                        name="product"
+                        [value]="product"
+                        [checked]="product.isChecked"
+                        (change)="checkedBox(product,$event)"
+                    >
+                    <label 
+                        [for]="product.pname"
+                    >{{product.pname}}</label>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="border-bottom: 1.5px black solid;">Name</th>
+                        <th style="border-bottom: 1.5px black solid;">Quantity</th>
+                        <th style="padding:0px 15px;border-bottom: 1.5px black solid;">List</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style=" margin:5px 0px;">{{sname?.value}}</td>
+                        <td style="text-align: center;margin:5px 0px;">{{products?.value.length}}</td>
+                        <td style="padding:0px 15px;margin:5px 0px;">
+                            <tr *ngFor="let p of products?.value; let i = index" >
+                                <td style="padding:5px 0px;">{{i + 1}}- {{p.pname}}</td>
+                            </tr>
+                        </td>
+                    </tr>
+                </tbody>    
+            </table>  
+            <div>
+                <input type="submit" value="Submit">
+            </div>
+        </form>
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.ERROR">
+        {{ error$ | async }}
+    </ng-container>
+</ng-container>

@@ -3,101 +3,99 @@
         loading...
     </ng-container>
     <ng-container *ngSwitchCase="DataState.LOADED">
-        <ng-container *ngIf="branchList$ | async as branchList">
-            <form [formGroup]="form" (ngSubmit)="submitForm()">
-                <div>
-                    <label for="firstName">First Name</label>
+        <form [formGroup]="form" (ngSubmit)="submitForm()">
+            <div>
+                <label for="firstName">First Name</label>
+                <input 
+                    type="text" 
+                    name="firstName" 
+                    autocomplete="off"
+                    formControlName="firstName"
+                >
+                <app-validation-message
+                    [component]="firstName"
+                    message="Please provide a first name"
+                    [submitted]="submitted"
+                    [isFormField]="isFormField"
+                    [type]="type"
+                ></app-validation-message>
+            </div>
+            <div>
+                <label for="lastName">Last Name</label>
+                <input 
+                    type="text" 
+                    name="lastName" 
+                    autocomplete="off"
+                    formControlName="lastName"
+                >
+                <app-validation-message
+                    [component]="lastName"
+                    message="Please provide a last name"
+                    [submitted]="submitted"
+                    [isFormField]="isFormField"
+                    [type]="type"
+                ></app-validation-message>
+            </div>
+            <div>
+                <label for="role">Role</label>
+                <select 
+                    formControlName="role" 
+                    name="role"
+                >
+                    <option value="null" disabled>Choose a role</option>
+                    <option *ngFor="let role of roles" [ngValue]="role">
+                        {{ role }}
+                    </option>
+                </select>
+                <app-validation-message
+                    [component]="role"
+                    message="Please select a role"
+                    [submitted]="submitted"
+                    [isFormField]="isFormField"
+                    [type]="type"
+                ></app-validation-message>
+            </div>
+            <div [formGroup]="selectForm">
+                <label for="branch">Branches:</label>
+                <div *ngFor="let branch of (branches$ | async)">
                     <input 
-                        type="text" 
-                        name="firstName" 
-                        autocomplete="off"
-                        formControlName="firstName"
+                        type="radio" 
+                        name="branchDropDown"
+                        formControlName="branchDropDown"
+                        [value]="branch"
+                        (change)="changeBranch()"
                     >
-                    <app-validation-message
-                        [component]="firstName"
-                        message="Please provide a first name"
-                        [submitted]="submitted"
-                        [isFormField]="isFormField"
-                        [type]="type"
-                    ></app-validation-message>
+                    <label for="branch">{{branch.location}}</label>
                 </div>
-                <div>
-                    <label for="lastName">Last Name</label>
-                    <input 
-                        type="text" 
-                        name="lastName" 
-                        autocomplete="off"
-                        formControlName="lastName"
-                    >
-                    <app-validation-message
-                        [component]="lastName"
-                        message="Please provide a last name"
-                        [submitted]="submitted"
-                        [isFormField]="isFormField"
-                        [type]="type"
-                    ></app-validation-message>
-                </div>
-                <div>
-                    <label for="role">Role</label>
-                    <select 
-                        formControlName="role" 
-                        name="role"
-                    >
-                        <option value="null" disabled>Choose a role</option>
-                        <option *ngFor="let role of roles" [ngValue]="role">
-                            {{ role }}
-                        </option>
-                    </select>
-                    <app-validation-message
-                        [component]="role"
-                        message="Please select a role"
-                        [submitted]="submitted"
-                        [isFormField]="isFormField"
-                        [type]="type"
-                    ></app-validation-message>
-                </div>
-                <div [formGroup]="selectForm">
-                    <label for="branch">Branches:</label>
-                    <div *ngFor="let branch of branchList">
-                        <input 
-                            type="radio" 
-                            name="branchDropDown"
-                            formControlName="branchDropDown"
-                            [value]="branch"
-                            (change)="changeBranch()"
-                        >
-                        <label for="branch">{{branch.location}}</label>
-                    </div>
-                    <app-validation-message
-                        [component]="branchDropDown"
-                        message="Please select a branch"
-                        [submitted]="submitted"
-                        [isFormField]="isFormField"
-                        [type]="type"
-                    ></app-validation-message>
-                </div>
-        
-                <table>
-                    <thead>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Role</th>
-                        <th>Branch</th>
-                    </thead>
-                    <tbody>
-                        <td>{{ firstName?.value }}</td>
-                        <td>{{ lastName?.value }}</td>
-                        <td>{{ role?.value }}</td>
-                        <td>{{ location?.value }}</td>
-                    </tbody>
-                </table>
-                <br>
-        
-                <div>
-                    <input type="submit" value="Submit">
-                </div>
-            </form>
-        </ng-container>
+                <app-validation-message
+                    [component]="branchDropDown"
+                    message="Please select a branch"
+                    [submitted]="submitted"
+                    [isFormField]="isFormField"
+                    [type]="type"
+                ></app-validation-message>
+            </div>
+    
+            <table>
+                <thead>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Role</th>
+                    <th>Branch</th>
+                </thead>
+                <tbody>
+                    <td>{{ firstName?.value }}</td>
+                    <td>{{ lastName?.value }}</td>
+                    <td>{{ role?.value }}</td>
+                    <td>{{ location?.value }}</td>
+                </tbody>
+            </table>
+            <br>
+    
+            <div>
+                <input type="submit" value="Submit">
+            </div>
+        </form>
     </ng-container>
     <ng-container *ngSwitchCase="DataState.ERROR">
         {{ error$ | async }}

@@ -1,0 +1,53 @@
+<ng-container *ngIf="(loadState$ | async) as loadState" [ngSwitch]="loadState">
+    <ng-container *ngSwitchCase="DataState.LOADING">
+        loading...
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.LOADED">
+        <h1>
+            {{ title }} 
+            <span *ngIf="isAll">
+                <button (click)="showAddForm = !showAddForm">Add</button>
+            </span>
+        </h1>
+        <app-form-customers
+            *ngIf="showAddForm" 
+            [type]="formType" 
+            (closeForm)="closeAddForm()"
+            (refreshForm)="refreshEmployeeView()"
+        ></app-form-customers>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th *ngIf="isAll">Info</th>
+                    <th *ngIf="!isAll">Edit</th>
+                    <th *ngIf="!isAll">Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let customer of (data$ | async )">
+                    <td>{{customer.cname}}</td>
+                    <td *ngIf="isAll"><button (click)="getInfo(customer.customer_id)">Info</button></td>
+                    <td *ngIf="!isAll"><button (click)="showEditForm = !showEditForm">Edit</button></td>
+                    <td *ngIf="!isAll"><button (click)="onDelete(customer.customer_id)">Delete</button></td>
+                </tr>
+            </tbody>    
+        </table>
+
+    
+        <ng-container *ngIf="showEditForm">
+            <h3>Edit {{ title }}</h3>
+            <app-form-customers
+                [type]="formType" 
+                (closeForm)="closeEditForm()"
+                (refreshForm)="refreshEmployeeView()"
+            ></app-form-customers>
+        </ng-container>
+        
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.ERROR">
+        {{ error$ | async }}
+    </ng-container>
+
+</ng-container>
+

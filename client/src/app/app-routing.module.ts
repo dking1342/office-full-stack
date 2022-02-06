@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { BranchesComponent } from './components/branches/branches.component';
-import { CustomersComponent } from './components/customers/customers.component';
-import { EmployeesComponent } from './components/employees/employees.component';
+import { BranchComponent } from './components/branch/branch.component';
+import { CustomerComponent } from './components/customer/customer.component';
 import { EmpsComponent } from './components/emps/emps.component';
-import { InventorysComponent } from './components/inventorys/inventorys.component';
-import { ProductsComponent } from './components/products/products.component';
-import { SuppliersComponent } from './components/suppliers/suppliers.component';
-import { TransactionsComponent } from './components/transactions/transactions.component';
+import { InventoryComponent } from './components/inventory/inventory.component';
+import { ProductComponent } from './components/product/product.component';
+import { SupplierComponent } from './components/supplier/supplier.component';
+import { TransactionComponent } from './components/transaction/transaction.component';
+
 
 const routes: Routes = [
   {
@@ -20,47 +20,47 @@ const routes: Routes = [
   },
   {
     path:"branches",
-    component:BranchesComponent
+    component:BranchComponent
   },
   {
     path:"branches/:id",
-    component:BranchesComponent
+    component:BranchComponent
   },
   {
     path:"customers",
-    component:CustomersComponent
+    component:CustomerComponent
   },
   {
     path:"customers/:id",
-    component:CustomersComponent
+    component:CustomerComponent
   },
   {
     path:"products",
-    component:ProductsComponent
+    component:ProductComponent
   },
   {
     path:"products/:id",
-    component:ProductsComponent
+    component:ProductComponent
   },
   {
     path:"suppliers",
-    component:SuppliersComponent
+    component:SupplierComponent
   },
   {
     path:"suppliers/:id",
-    component:SuppliersComponent
+    component:SupplierComponent
   },
   {
     path:"inventory",
-    component:InventorysComponent
+    component:InventoryComponent
   },
   {
     path:"transactions",
-    component:TransactionsComponent
+    component:TransactionComponent
   },
   {
     path:"transactions/:id",
-    component:TransactionsComponent
+    component:TransactionComponent
   }
 ];
 

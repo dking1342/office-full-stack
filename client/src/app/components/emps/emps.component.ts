@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { DELETE_EMPLOYEE, GET_EMPLOYEES, GET_EMPLOYEES_SAVED, GET_EMPLOYEES_SUCCESS } from 'src/app/store/actions/employeeActions';
-import { selectEmployeeDataState, selectEmployeeError, selectEmployeeFilteredData } from 'src/app/store/selectors/employeeSelector';
+import { selectEmployeeDataState, selectEmployeeError, selectEmployeeFilteredEmployeeData } from 'src/app/store/selectors/employeeSelector';
 import { Employee, FetchResponse, ResponseAppState } from 'src/types/general';
 
 @Component({
@@ -15,7 +15,7 @@ export class EmpsComponent implements OnInit {
 
   // observables
   state$ = this.store.select(state=>state);
-  data$ = this.store.select(selectEmployeeFilteredData);
+  data$ = this.store.select(selectEmployeeFilteredEmployeeData);
   loadState$ = this.store.select(selectEmployeeDataState);
   error$ = this.store.select(selectEmployeeError);
   readonly DataState = Requeststatus;
@@ -60,12 +60,12 @@ export class EmpsComponent implements OnInit {
       }
       if(urlLength > 1){
         // if localstorage and single
-        let matchingEmployee = localState.filteredData!.filter(val=> val.id === this.employee_id);
+        let matchingEmployee = localState.filteredEmployeeData!.filter(val=> val.id === this.employee_id);
 
         if(matchingEmployee?.length){
           let responseData = {
             ...localState,
-            filteredData:matchingEmployee
+            filteredEmployeeData:matchingEmployee
           };
           this.store.dispatch(GET_EMPLOYEES_SAVED({res:responseData}));
         } else {

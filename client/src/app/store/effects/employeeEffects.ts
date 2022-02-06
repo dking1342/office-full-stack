@@ -27,7 +27,7 @@ export class EmployeeEffects {
                                 data:res.data!.flat(1)
                             },
                             error:"",
-                            filteredData:res.data!.flat(1)
+                            filteredEmployeeData:res.data!.flat(1)
                         }
                         return GET_EMPLOYEES_SUCCESS({res:response});
 

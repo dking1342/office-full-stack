@@ -1,0 +1,52 @@
+<ng-container *ngIf="(loadState$ | async) as loadState" [ngSwitch]="loadState">
+    <ng-container *ngSwitchCase="DataState.LOADING">
+        loading...
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.LOADED">
+        <h1>
+            {{ title }} 
+            <span *ngIf="isAll">
+                <button (click)="showAddForm = !showAddForm">
+                    Add
+                </button>
+            </span>
+        </h1>
+
+        <app-form-branches
+            *ngIf="showAddForm" 
+            [type]="formType"
+            (closeForm)="closeAddForm()"
+            (refreshForm)="refreshBranchView()"
+        ></app-form-branches>
+        <table>
+            <thead>
+                <tr>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th *ngIf="isAll">Info</th>
+                    <th *ngIf="!isAll">Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let branch of (data$ | async)">
+                    <td>{{branch.location}}</td>
+                    <td>{{branch.branchStatus}}</td>
+                    <td *ngIf="isAll"><button (click)="getInfo(branch.branch_id)">Info</button></td>
+                    <td *ngIf="!isAll"><button (click)="showEditForm = !showEditForm">Edit</button></td>
+                </tr>
+            </tbody>    
+        </table>
+
+        <ng-container *ngIf="showEditForm">
+            <h3>Edit Employee</h3>
+            <app-form-branches
+                [type]="formType"
+                (closeForm)="closeEditForm()"
+                (refreshForm)="refreshBranchView()"
+            ></app-form-branches>
+        </ng-container>
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.ERROR">
+        {{ error$ | async }}
+    </ng-container>
+</ng-container>

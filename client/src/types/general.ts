@@ -91,5 +91,13 @@ export interface ResponseAppState<T> {
     dataState: Requeststatus;
     appData?:T;
     error?:string;
-    filteredData?:Employee[];
+    filteredEmployeeData?:Employee[];
+    filteredBranchData?:Branch[];
+    filteredCustomerData?:Customer[];
+    filteredProductData?:Product[];
+    filteredSupplierData?:Supplier[];
+    filteredInventoryData?:Inventory[];
+    filteredTransactionData?:Transaction[];
+    transaction?:Transaction
 }
+

@@ -83,10 +83,8 @@ export class TransactionsComponent implements OnInit {
   closeEditForm(){
     this.showEditForm = !this.showEditForm;
   }
-  refreshTransactionView(response:FetchResponse<Transaction>){
-    if(response.statusCode === 200){
-      this.getData(this.url.split("/").length);
-    }
+  refreshTransactionView(){
+    this.getData(this.url.split("/").length);
   }
 
 }

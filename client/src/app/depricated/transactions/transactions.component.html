@@ -11,9 +11,9 @@
         </h1>
         <app-form-transactions 
             *ngIf="showAddForm" 
-            [type]="formType"
+            
             (closeForm)="closeAddForm()"
-            (refreshForm)="refreshTransactionView($event)"
+            (refreshForm)="refreshTransactionView()"
         ></app-form-transactions>
         <table>
             <thead>
@@ -45,10 +45,10 @@
         <ng-container *ngIf="showEditForm">
             <h3>Edit {{title}}</h3>
             <app-form-transactions
-                [type]="formType"
-                [data]="appState"
+                
+                
                 (closeForm)="closeEditForm()"
-                (refreshForm)="refreshTransactionView($event)"
+                (refreshForm)="refreshTransactionView()"
             ></app-form-transactions>
 
         </ng-container>

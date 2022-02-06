@@ -12,7 +12,7 @@
 <ng-container *ngIf="{employee:employees$ | async,product:products$ | async, customer: customers$ | async, supplier: suppliers$ | async} as o">
     <br *ngIf="o.employee && o.product && o.customer && o.supplier">
         
-        <form [formGroup]="selectForm">
+        <form [formGroup]="selectForm" (ngSubmit)="submitForm()">
             <div>
                 <label for="employee">Employee</label>
                 <select 
@@ -150,6 +150,6 @@
                 <td>{{ cname }}</td>
             </tbody>
         </table>
-        <button (click)="submitForm()">Submit</button>
+        <input type="submit" value="Submit">
     
 </ng-container>

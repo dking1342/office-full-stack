@@ -1,0 +1,39 @@
+<ng-container *ngIf="(loadState$ | async) as loadState" [ngSwitch]="loadState">
+    <ng-container *ngSwitchCase="DataState.LOADING">
+        loading...
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.LOADED">
+        <form [formGroup]="form" (ngSubmit)="submitForm()">
+            <div>
+                <label for="cname">Name</label>
+                <input 
+                    type="text" 
+                    autocomplete="off"
+                    name="cname" 
+                    formControlName="cname"
+                >
+                <app-validation-message
+                    [component]="cname"
+                    message="Please provide a customer"
+                    [submitted]="submitted"
+                    [isFormField]="isFormField"
+                ></app-validation-message>
+            </div>
+            <table>
+                <thead>
+                    <th>Name</th>
+                </thead>
+                <tbody>
+                    <td>{{ cname?.value }}</td>
+                </tbody>
+            </table>
+            <br>
+            <div>
+                <input type="submit" value="Submit">
+            </div>
+        </form>
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.ERROR">
+        {{ error$ | async }}
+    </ng-container>
+</ng-container>

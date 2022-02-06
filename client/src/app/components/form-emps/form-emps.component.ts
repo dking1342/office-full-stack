@@ -1,13 +1,15 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Store, select } from '@ngrx/store';
-import { BehaviorSubject, catchError, filter, map, of } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { BehaviorSubject, catchError, map, of } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { Roles } from 'src/app/enums/roles';
 import { FetchService } from 'src/app/services/fetch.service';
+import { GET_BRANCHES, GET_BRANCHES_SUCCESS } from 'src/app/store/actions/branchActions';
 import { ADD_EMPLOYEE, UPDATE_EMPLOYEE } from 'src/app/store/actions/employeeActions';
-import { selectEmployeeFilteredData, selectEmployeeDataState, selectEmployeeError, selectEmployeeFormData } from 'src/app/store/selectors/employeeSelector';
+import { selectBranchFilteredBranchData } from 'src/app/store/selectors/branchSelectors';
+import { selectEmployeeDataState, selectEmployeeError, selectEmployeeFilteredEmployeeData, selectEmployeeFormData } from 'src/app/store/selectors/employeeSelector';
 import { Branch, Employee, FetchResponse, ResponseAppState } from 'src/types/general';
 
 @Component({
@@ -45,13 +47,13 @@ export class FormEmpsComponent implements OnInit {
   isFormField:boolean = true;
 
   // view specific id
+  url:string = this.router.url.toString().slice(1,);
   employee_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
 
   // observables
-  branchList = new BehaviorSubject<Branch[]>([]);
-  branchList$ = this.branchList.asObservable();
+  branches$ = this.storeBranch.select(selectBranchFilteredBranchData);
   state$ = this.store.select(state=>state);
-  data$ = this.store.select(selectEmployeeFilteredData);
+  data$ = this.store.select(selectEmployeeFilteredEmployeeData);
   loadState$ = this.store.select(selectEmployeeDataState);
   error$ = this.store.select(selectEmployeeError);
   readonly DataState = Requeststatus;
@@ -61,7 +63,8 @@ export class FormEmpsComponent implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private fetchService: FetchService,
-    private store: Store<ResponseAppState<FetchResponse<Employee>>>
+    private store: Store<ResponseAppState<FetchResponse<Employee>>>,
+    private storeBranch: Store<ResponseAppState<FetchResponse<Branch>>>,
   ) { }
 
   // getters for select state
@@ -78,10 +81,10 @@ export class FormEmpsComponent implements OnInit {
   // lifecycle hooks
   ngOnInit(): void {
     if(this.type === "save"){
-      this.getBranches();
+      this.onGetBranches();
     }
     if(this.type === "edit"){
-      this.getBranches();
+      this.onGetBranches();
       this.store
         .select(selectEmployeeFormData({id:this.employee_id}))
         .forEach(item=>{
@@ -115,16 +118,14 @@ export class FormEmpsComponent implements OnInit {
   }
 
   // get branches
-  getBranches(){
-    this.branchList$ = this.fetchService.getBranches$("branches/list")
-      .pipe(
-        map(res=>{
-          return res.data!.flat(1);
-        }),
-        catchError(()=>{
-          return of([]);
-        })
-      )
+  onGetBranches(){
+    if(localStorage.getItem('branches')){
+      // localstorage state
+      let localState:ResponseAppState<FetchResponse<Branch>> = JSON.parse(localStorage.getItem('branches')!);
+      this.storeBranch.dispatch(GET_BRANCHES_SUCCESS({res:localState}))
+    } else {
+      this.store.dispatch(GET_BRANCHES({url:"branches/list"})); 
+    }
   }
 
   // save employee

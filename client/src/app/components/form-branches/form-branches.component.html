@@ -1,0 +1,63 @@
+<ng-container *ngIf="loadState$ | async as loadState" [ngSwitch]="loadState">
+    <ng-container *ngSwitchCase="DataState.LOADING">
+        loading...
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.LOADED">
+        <form [formGroup]="form" (ngSubmit)="submitForm()">
+            <div>
+                <label for="location">Location</label>
+                <input 
+                    type="text" 
+                    autocomplete="off"
+                    name="location" 
+                    formControlName="location"
+                >
+                <app-validation-message
+                    [component]="location"
+                    message="Please provide a branch"
+                    [submitted]="submitted"
+                    [isFormField]="isFormField"
+                ></app-validation-message>
+            </div>
+            <div [formGroup]="selectForm">
+                <label for="branchStatus">Status: </label>
+                <select 
+                    name="branchStatus" 
+                    formControlName="status"
+                    (change)="changeStatus()"
+                >
+                    <option [value]="null" disabled>Choose status</option>
+                    <option 
+                        *ngFor="let status of locationStatus" 
+                        [ngValue]="status"
+                    >
+                        {{status}}
+                    </option>
+                </select>
+                <app-validation-message
+                    [component]="status"
+                    message="Please select a status"
+                    [submitted]="submitted"
+                    [isFormField]="isFormField"
+                ></app-validation-message>
+            </div>
+        
+            <table>
+                <thead>
+                    <th>Location</th>
+                    <th>Status</th>
+                </thead>
+                <tbody>
+                    <td>{{ location?.value }}</td>
+                    <td>{{ branchStatus?.value }}</td>
+                </tbody>
+            </table>
+            <div>
+                <input type="submit" value="Submit">
+            </div>
+        </form>        
+    </ng-container>
+    <ng-container * ngSwitchCase="DataState.ERROR">
+        {{ error$ | async }}
+    </ng-container>
+</ng-container>

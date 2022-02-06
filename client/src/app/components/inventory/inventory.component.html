@@ -1,0 +1,64 @@
+<ng-container *ngIf="(loadState$ | async) as loadState" [ngSwitch]="loadState">
+    <ng-container *ngSwitchCase="DataState.LOADING">
+        loading...
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.LOADED">
+        <div>
+            <h1>Inventory </h1>
+            <div>
+                <form [formGroup]="form">
+                    <div>
+                        <label for="search">Search: </label>
+                        <input 
+                            type="text" 
+                            name="search" 
+                            autocomplete="off" 
+                            formControlName="search"
+                            (keyup)="onSearchInventory()"
+                        >
+                    </div>
+                    <div>
+                        <label for="filter">Filter</label>
+                        <select 
+                            name="filter"
+                            formControlName="filter" 
+                            (change)="onFilterInventory($event)"
+                        >
+                            <option value="null" disabled>Choose a filter</option>
+                            <option value="all">All</option>
+                            <option 
+                                *ngFor="let product of (productList$ | async)" 
+                                [value]="product.product.product_id"
+                            >
+                                {{product.product.pname}}
+                            </option>
+                        </select>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Product 
+                        <span><button (click)="sortInventoryColumn()">{{ sortOptions[sortInventoryIndex]}}</button></span>
+                    </th>
+                    <th>Quantity 
+                        <span><button (click)="sortQuantityColumn()">{{ sortOptions[sortQuantityIndex] }}</button></span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let inv of (data$ | async)" >
+                    <td>{{inv.product.pname}}</td>
+                    <td>{{inv.quantity}}</td>
+                </tr>
+            </tbody>  
+        </table>
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.ERROR">
+        {{ error$ | async }}
+    </ng-container>
+</ng-container>

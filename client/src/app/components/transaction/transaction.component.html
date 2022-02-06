@@ -1,0 +1,59 @@
+<ng-container *ngIf="(loadState$ | async) as loadState" [ngSwitch]="loadState">
+    <ng-container *ngSwitchCase="DataState.LOADING">
+        loading...
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.LOADED">
+        <h1>
+            {{title}} 
+            <span *ngIf="isAll">
+                <button (click)="showAddForm = !showAddForm">Add</button>
+            </span>
+        </h1>
+        <app-form-transaction
+            *ngIf="showAddForm" 
+            [type]="formType"
+            (closeForm)="closeAddForm()"
+            (refreshForm)="refreshTransactionView()"
+        ></app-form-transaction>
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Supplier</th>
+                    <th>Product</th>
+                    <th>Customer</th>
+                    <th>Type</th>
+                    <th>Quantity</th>
+                    <th *ngIf="isAll">Info</th>
+                    <th *ngIf="!isAll">Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let transaction of (data$ | async)">
+                    <td>{{ transaction.employee.firstName}} {{ transaction.employee.lastName }}</td>
+                    <td>{{ transaction.supplier?.sname }}</td>
+                    <td>{{ transaction.product.pname }}</td>
+                    <td>{{ transaction.customer?.cname }}</td>
+                    <td>{{ transaction.transactionType }}</td>
+                    <td>{{ transaction.transaction_quantity }}</td>
+                    <td *ngIf="isAll"><button (click)="getInfo(transaction.transaction_id)">info</button></td>
+                    <td *ngIf="!isAll"><button (click)="showEditForm = !showEditForm">Edit</button></td>
+                </tr>
+            </tbody>    
+        </table>
+
+        <ng-container *ngIf="showEditForm">
+            <h3>Edit {{title}}</h3>
+            <app-form-transaction
+                *ngIf="showEditForm"
+                [type]="formType"
+                (closeForm)="closeEditForm()"
+                (refreshForm)="refreshTransactionView()"
+            ></app-form-transaction>
+
+        </ng-container>
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.ERROR">
+        {{ error$ | async }}
+    </ng-container>
+</ng-container>

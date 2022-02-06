@@ -1,0 +1,154 @@
+<ng-container *ngIf="(loadState$ | async) as loadState" [ngSwitch]="loadState">
+    <ng-container *ngSwitchCase="DataState.LOADING">
+        loading...
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.LOADED">
+        <form [formGroup]="form" (ngSubmit)="submitForm()">
+            <div>
+                <label for="employee">Employee</label>
+                <select 
+                    name="employee" 
+                    formControlName="employee" 
+                >
+                    <option [ngValue]="null" disabled>Choose an employee</option>
+                    <option *ngFor="let employee of (employeeList$ | async)" [ngValue]="employee">
+                        {{ employee.firstName }} {{ employee.lastName }}
+                    </option>
+                </select>
+                <app-validation-message
+                    [component]="employee"
+                    message="Please select an employee"
+                    [submitted]="submitted"
+                    [isFormField]="isFormField"
+                    [type]="type"
+                ></app-validation-message>  
+            </div>
+            <div>
+                <label for="product">Product: </label>
+                <select 
+                    name="product" 
+                    formControlName="product"
+                >
+                    <option [value]="null" disabled>Choose a product</option>
+                    <option *ngFor="let product of (productList$ | async)" [ngValue]="product">
+                        {{product.pname}}
+                    </option>
+                </select>
+                <app-validation-message
+                    [component]="product"
+                    message="Please select a product"
+                    [submitted]="submitted"
+                    [isFormField]="isFormField"
+                    [type]="type"
+                ></app-validation-message>
+            </div>
+            <div>
+                <label for="type">Type: </label>
+                <select 
+                    name="transactionType" 
+                    formControlName="transactionType"
+                    (change)="changeType()"
+                >
+                    <option [ngValue]="null" disabled>Choose a type</option>
+                    <option *ngFor="let type of rolesList" [ngValue]="type">
+                        {{type}}
+                    </option>
+                </select>
+                <app-validation-message
+                    [component]="transactionType"
+                    message="Please select an transaction type"
+                    [submitted]="submitted"
+                    [isFormField]="isFormField"
+                    [type]="type"
+                ></app-validation-message>
+            </div>
+            <div *ngIf="supplier?.value === null && customer?.value === null">
+                <sub  style="color: red;">
+                    * Please select a customer or supplier
+                </sub>
+                <hr>
+            </div>
+            <div [ngSwitch]="transactionType?.value">
+                <ng-container *ngSwitchCase="TransactionState.BUY">
+                    <label for="supplier">Supplier</label>
+                    <select 
+                        name="supplier" 
+                        formControlName="supplier" 
+                    >
+                        <option [value]="null" disabled>Choose a supplier</option>
+                        <option *ngFor="let supplier of (supplierList$ | async)" [ngValue]="supplier">
+                            {{supplier.sname}}
+                        </option>
+                    </select>
+                    <app-validation-message
+                        [component]="supplier"
+                        message="Please select a supplier"
+                        [submitted]="submitted"
+                        [isFormField]="isFormField"
+                        [type]="type"
+                    ></app-validation-message>
+                </ng-container>
+                <ng-container *ngSwitchCase="TransactionState.SELL">
+                    <label for="customer">Customer</label>
+                    <select 
+                        name="customer" 
+                        formControlName="customer" 
+                    >
+                        <option [value]="null" disabled>Choose a customer</option>
+                        <option *ngFor="let customer of (customerList$ | async)" [ngValue]="customer">
+                            {{customer.cname}}
+                        </option>
+                    </select>
+                    <app-validation-message
+                        [component]="customer"
+                        message="Please select a customer"
+                        [submitted]="submitted"
+                        [isFormField]="isFormField"
+                        [type]="type"
+                    ></app-validation-message>                
+                </ng-container>
+            </div>
+            <div>
+                <label for="quantity">Quantity</label>
+                <input 
+                    type="number" 
+                    min="0" 
+                    name="transactionQuantity" 
+                    formControlName="transaction_quantity"
+                >
+                <app-validation-message
+                    [component]="transaction_quantity"
+                    message="Please enter a quantity"
+                    [submitted]="submitted"
+                    [isFormField]="isFormField"
+                    [type]="type"
+                ></app-validation-message>
+            </div>
+            <div>
+                <input type="submit" value="Submit">
+            </div>
+        </form>
+        <br>
+        <table>
+            <thead>
+                <th>Employee</th>
+                <th>Product</th>
+                <th>Type</th>
+                <th>Quantity</th>
+                <th>Supplier</th>
+                <th>Customer</th>
+            </thead>
+            <tbody>
+                <td>{{ employee?.value?.firstName }} {{ employee?.value?.lastName }}</td>
+                <td>{{ product?.value?.pname }}</td>
+                <td>{{ transactionType?.value }}</td>
+                <td>{{ transaction_quantity?.value }}</td>
+                <td>{{ supplier?.value?.sname }}</td>
+                <td>{{ customer?.value?.cname }}</td>
+            </tbody>
+        </table>
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.ERROR">
+        {{ error$ | async }}
+    </ng-container>
+</ng-container>
