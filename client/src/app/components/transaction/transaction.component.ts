@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { map } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { GET_TRANSACTION, GET_TRANSACTIONS, GET_TRANSACTIONS_SUCCESS } from 'src/app/store/actions/transactionActions';
 import { selectTransactionDataState, selectTransactionError, selectTransactionFilterData } from 'src/app/store/selectors/transactionSelectors';
@@ -9,7 +11,7 @@ import { FetchResponse, ResponseAppState, Transaction } from 'src/types/general'
 @Component({
   selector: 'app-transaction',
   templateUrl: './transaction.component.html',
-  styleUrls: ['./transaction.component.css']
+  styleUrls: ['./transaction.component.css','../../app.component.css']
 })
 export class TransactionComponent implements OnInit {
 
@@ -27,6 +29,16 @@ export class TransactionComponent implements OnInit {
   title:string="";
   url:string = this.router.url.toString().slice(1,);
   t_id = this.url.split("/")[this.url.split("/").length - 1];
+
+  // material ui form state
+  displayedColumns: string[] = ['employee','supplier','product','customer','type','quantity','info']; 
+  dataSource$ = this.data$.pipe(
+    map(item=>{
+      let ds = new MatTableDataSource<Transaction>();
+      ds.data.push(...item!);
+      return ds;
+    })
+  );   
 
   constructor(
     private router:Router,

@@ -1,27 +1,40 @@
-<div class="toolbar" role="banner">
-  <a routerLink="/" title="Home">
-    <img
-      width="40"
-      alt="Angular Logo"
-      src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg=="
-    />  
-  </a>
-  <span>Welcome</span>
-    <div class="spacer"></div>
-    <a aria-label="internal link" title="Employee" routerLink="/employees" style="color: white; padding-left: 10px;">Employee</a>
-    <a aria-label="internal link" title="Branch" routerLink="/branches" style="color: white;padding-left: 10px;">Branch</a>
-    <a aria-label="internal link" title="Customer" routerLink="/customers" style="color: white;padding-left: 10px;">Customer</a>
-    <a aria-label="internal link" title="Product" routerLink="/products" style="color: white;padding-left: 10px;">Product</a>
-    <a aria-label="internal link" title="Supplier" routerLink="/suppliers" style="color: white;padding-left: 10px;">Supplier</a>
-    <a aria-label="internal link" title="Inventory" routerLink="/inventory" style="color: white;padding-left: 10px;">Inventory</a>
-    <a aria-label="internal link" title="Transaction" routerLink="/transactions" style="color: white;padding-left: 10px;">Transaction</a>
+
+<mat-drawer-container class="example-container" autosize>
+  <mat-toolbar color="primary" position-fixed>
+    <button mat-icon-button (click)="drawer.toggle()" matTooltip="Open menu">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <span class="spacer"></span>
+    <button class="side-icon-nav" mat-icon-button routerLink="/" matTooltip="Log in">
+      <mat-icon>login</mat-icon>
+    </button>
+    <button class="side-icon-nav" mat-icon-button routerLink="/" matTooltip="Register">
+      <mat-icon>app_registration</mat-icon>
+    </button>
+    <button class="side-icon-nav" mat-icon-button routerLink="/" matTooltip="Logout">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <div class="content" role="main">
+    <div class="inner-content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+  
+  <mat-drawer #drawer class="example-sidenav" mode="side">
+    <button mat-icon-button (click)="drawer.toggle()" matTooltip="Close menu">
+      <mat-icon>close</mat-icon>
+    </button> 
+    <a aria-label="internal link" title="Employee" routerLink="/employees" (click)="drawer.toggle()">Employee</a>
+    <a aria-label="internal link" title="Branch" routerLink="/branches" (click)="drawer.toggle()">Branch</a>
+    <a aria-label="internal link" title="Customer" routerLink="/customers" (click)="drawer.toggle()">Customer</a>
+    <a aria-label="internal link" title="Product" routerLink="/products" (click)="drawer.toggle()">Product</a>
+    <a aria-label="internal link" title="Supplier" routerLink="/suppliers" (click)="drawer.toggle()">Supplier</a>
+    <a aria-label="internal link" title="Inventory" routerLink="/inventory" (click)="drawer.toggle()">Inventory</a>
+    <a aria-label="internal link" title="Transaction" routerLink="/transactions" (click)="drawer.toggle()">Transaction</a>
+  </mat-drawer>
+</mat-drawer-container>
 
 
-</div>
-
-<div class="content" role="main">
-
-  <router-outlet></router-outlet>
-
-</div>
 

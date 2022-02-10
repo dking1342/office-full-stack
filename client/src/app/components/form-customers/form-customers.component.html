@@ -1,39 +1,42 @@
 <ng-container *ngIf="(loadState$ | async) as loadState" [ngSwitch]="loadState">
-    <ng-container *ngSwitchCase="DataState.LOADING">
-        loading...
-    </ng-container>
+    <app-view-message-box
+        *ngSwitchCase="DataState.LOADING"
+        [type]="DataState.LOADING"
+    ></app-view-message-box>
     <ng-container *ngSwitchCase="DataState.LOADED">
-        <form [formGroup]="form" (ngSubmit)="submitForm()">
+        <table class="mat-elevation-z8 demo-table">
+            <thead>
+                <th>Name</th>
+            </thead>
+            <tbody>
+                <td>{{ cname?.value }}</td>
+            </tbody>
+        </table>
+        <form class="form" [formGroup]="form" (ngSubmit)="submitForm()">
             <div>
-                <label for="cname">Name</label>
-                <input 
-                    type="text" 
-                    autocomplete="off"
-                    name="cname" 
-                    formControlName="cname"
-                >
-                <app-validation-message
-                    [component]="cname"
-                    message="Please provide a customer"
-                    [submitted]="submitted"
-                    [isFormField]="isFormField"
-                ></app-validation-message>
+                <mat-form-field>
+                    <mat-label>Name</mat-label>
+                    <input 
+                        matInput
+                        type="text" 
+                        autocomplete="off"
+                        name="cname" 
+                        formControlName="cname"
+                    >
+                    <mat-error
+                        *ngIf="cname?.invalid && (cname?.dirty || cname?.touched || submitted)"
+                    >
+                        Please provide a name
+                    </mat-error>
+                </mat-form-field>
             </div>
-            <table>
-                <thead>
-                    <th>Name</th>
-                </thead>
-                <tbody>
-                    <td>{{ cname?.value }}</td>
-                </tbody>
-            </table>
-            <br>
             <div>
-                <input type="submit" value="Submit">
+                <button type="submit" mat-flat-button color="primary">Submit</button>
             </div>
         </form>
     </ng-container>
-    <ng-container *ngSwitchCase="DataState.ERROR">
-        {{ error$ | async }}
-    </ng-container>
+    <app-view-message-box
+        *ngSwitchCase="DataState.ERROR"
+        [type]="DataState.ERROR"
+    ></app-view-message-box>
 </ng-container>

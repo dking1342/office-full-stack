@@ -1,0 +1,8 @@
+.view-header-body{
+    width: 100%;
+    height: fit-content;
+    display:flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 1.5em 0;
+}

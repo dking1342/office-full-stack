@@ -1,59 +1,98 @@
-<ng-container *ngIf="(loadState$ | async) as loadState" [ngSwitch]="loadState">
-    <ng-container *ngSwitchCase="DataState.LOADING">
-        loading...
-    </ng-container>
+<ng-container *ngIf="(loadState$ | async) as loadState" [ngSwitch]="loadState" class="view-container">
+    <app-view-message-box
+        *ngSwitchCase="DataState.LOADING"
+        [type]="DataState.LOADING"
+    ></app-view-message-box>
     <ng-container *ngSwitchCase="DataState.LOADED">
-        <h1>
-            {{ title }} 
-            <span *ngIf="isAll">
-                <button (click)="showAddForm = !showAddForm">Add</button>
-            </span>
-        </h1>
+        <app-view-header
+            [title]="title"
+            [isAll]="isAll"
+            [showAddForm]="showAddForm"
+            (toggleAddForm)="closeAddForm()"
+        ></app-view-header>
         <app-form-emps 
             *ngIf="showAddForm" 
             [type]="formType" 
             (closeForm)="closeAddForm()"
             (refreshForm)="refreshEmployeeView()"
         ></app-form-emps>
-    
-        <table>
-            <thead>
-                <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Role</th>
-                    <th>Branch</th>
-                    <th *ngIf="isAll">Info</th>
-                    <th *ngIf="!isAll">Edit</th>
-                    <th *ngIf="!isAll">Delete</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let employee of (data$ | async)">
-                    <td>{{employee.firstName}}</td>
-                    <td>{{employee.lastName}}</td>
-                    <td>{{employee.role.slice(0,1) + employee.role.slice(1).toLowerCase()}}</td>
-                    <td>{{employee.branch.location.slice(0,1) + employee.branch.location.toLowerCase().slice(1)}}</td>
-                    <td *ngIf="isAll"><button (click)="getInfo(employee.id)">Info</button></td>
-                    <td *ngIf="!isAll"><button (click)="showEditForm = !showEditForm">Edit</button></td>
-                    <td *ngIf="!isAll"><button (click)="onDelete(employee.id)">Delete</button></td>
-                </tr>
-            </tbody>    
+        
+        <table
+            *ngIf="!showAddForm && (dataSource$ | async) as dataSource"
+            mat-table            
+            class="mat-elevation-z8 demo-table"
+            [dataSource]="dataSource"
+        >   
+            <ng-container matColumnDef="firstName">
+                <th mat-header-cell *matHeaderCellDef>First Name</th>
+                <td mat-cell *matCellDef="let element">{{ element.firstName }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="lastName">
+                <th mat-header-cell *matHeaderCellDef>Last Name</th>
+                <td mat-cell *matCellDef="let element">{{ element.lastName }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="role">
+                <th mat-header-cell *matHeaderCellDef>Role</th>
+                <td mat-cell *matCellDef="let element">{{ element.role }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="branch">
+                <th mat-header-cell *matHeaderCellDef>Branch</th>
+                <td mat-cell *matCellDef="let element">{{ element.branch.location }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="info">
+                <th mat-header-cell *matHeaderCellDef ></th>
+                <td mat-cell *matCellDef="let element" >
+                    <div *ngIf="isAll">
+                        <button 
+                            mat-icon-button 
+                            (click)="getInfo(element.id)" 
+                            color="primary" 
+                            matTooltip="See more..."
+                        >
+                            <mat-icon>more_vert</mat-icon>
+                        </button>
+                    </div>
+                    <div class="edit-delete-col" *ngIf="!isAll">
+                        <button 
+                            mat-icon-button 
+                            (click)="showEditForm = !showEditForm" 
+                            color="primary" 
+                            matTooltip="Edit entry"
+                        >
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button 
+                            mat-icon-button 
+                            (click)="onDelete(element.id)" 
+                            color="warn" 
+                            matTooltip="Delete entry"
+                        >
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
     
         <ng-container *ngIf="showEditForm">
-            <h3>Edit {{ title }}</h3>
+            <h3 class="edit-form-header">Edit {{ title }}</h3>
             <app-form-emps 
                 [type]="formType" 
                 (closeForm)="closeEditForm()"
                 (refreshForm)="refreshEmployeeView()"
             ></app-form-emps>
         </ng-container>
-        
     </ng-container>
-    <ng-container *ngSwitchCase="DataState.ERROR">
-        {{ error$ | async }}
-    </ng-container>
-
+    <app-view-message-box
+        *ngSwitchCase="DataState.ERROR"
+        [type]="DataState.ERROR"
+    ></app-view-message-box>
 </ng-container>
 

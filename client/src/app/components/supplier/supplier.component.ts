@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { map } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { GET_PRODUCTS, GET_PRODUCTS_SUCCESS } from 'src/app/store/actions/productActions';
 import { DELETE_SUPPLIER, GET_SUPPLIER, GET_SUPPLIERS, GET_SUPPLIERS_SUCCESS } from 'src/app/store/actions/supplierActions';
@@ -11,7 +13,7 @@ import { FetchResponse, Product, ResponseAppState, Supplier } from 'src/types/ge
 @Component({
   selector: 'app-supplier',
   templateUrl: './supplier.component.html',
-  styleUrls: ['./supplier.component.css']
+  styleUrls: ['./supplier.component.css','../../app.component.css']
 })
 export class SupplierComponent implements OnInit {
 
@@ -30,6 +32,16 @@ export class SupplierComponent implements OnInit {
   title:string = "";
   url:string = this.router.url.toString().slice(1,);
   s_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
+
+  // material ui form state
+  displayedColumns: string[] = ['name','quantity','list','info']; 
+  dataSource$ = this.data$.pipe(
+    map(item=>{
+      let ds = new MatTableDataSource<Supplier>();
+      ds.data.push(...item!);
+      return ds;
+    })
+  );    
   
   constructor(
     private store:Store<ResponseAppState<FetchResponse<Supplier>>>,
@@ -81,7 +93,7 @@ export class SupplierComponent implements OnInit {
     }
   }
 
-  onGetProducts(){
+  onGetProducts(){  
     // if localstorage is null
     if(localStorage.getItem('products')){
       // localstorage state
@@ -91,7 +103,7 @@ export class SupplierComponent implements OnInit {
     } else {
       this.store.dispatch(GET_PRODUCTS({url:"products/list"})); 
     }
-}
+  }
 
   onDelete(id:string){
     if(confirm("Are you sure you want to delete this supplier?")){

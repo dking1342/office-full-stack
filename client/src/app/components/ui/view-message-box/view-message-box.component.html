@@ -1,0 +1,9 @@
+<ng-container [ngSwitch]="type" class="message-box">
+    <ng-container *ngSwitchCase="DataState.LOADING">
+        <mat-spinner color="accent"></mat-spinner>
+    </ng-container>
+    <ng-container *ngSwitchCase="DataState.ERROR">
+        <h1 class="error-box">Something went wrong</h1>
+        <h3 class="error-box">Please try again</h3>
+    </ng-container>
+</ng-container>

@@ -39,6 +39,7 @@ export const inventoryReducer = createReducer(
     on(GET_INVENTORY_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         };
         return state;
@@ -77,7 +78,7 @@ export const inventoryReducer = createReducer(
                 filteredInventoryData:[...state.filteredInventoryData!].sort((a,b)=>a.product.pname.localeCompare(b.product.pname))
             }
             return state;
-        } else if(direction === "des"){
+        } else if(direction === "desc"){
             state = {
                 ...state,
                 filteredInventoryData:[...state.filteredInventoryData!].sort((a,b)=>b.product.pname.localeCompare(a.product.pname))
@@ -91,7 +92,7 @@ export const inventoryReducer = createReducer(
         if(direction === "none"){
             state = {
                 ...state,
-                filteredInventoryData:state.appData?.data
+                filteredInventoryData:state.filteredInventoryData
             }
             return state;
         } else if(direction === "asc"){
@@ -100,7 +101,7 @@ export const inventoryReducer = createReducer(
                 filteredInventoryData:[...state.filteredInventoryData!].sort((a,b)=>a.quantity - b.quantity)
             }
             return state;
-        } else if(direction === "des"){
+        } else if(direction === "desc"){
             state = {
                 ...state,
                 filteredInventoryData:[...state.filteredInventoryData!].sort((a,b)=>b.quantity - a.quantity)

@@ -1,65 +1,90 @@
 <ng-container *ngIf="(loadState$ | async) as loadState" [ngSwitch]="loadState">
-    <ng-container *ngSwitchCase="DataState.LOADING">
-        loading...
-    </ng-container>
+    <app-view-message-box
+        *ngSwitchCase="DataState.LOADING"
+        [type]="DataState.LOADING"
+    ></app-view-message-box>
     <ng-container *ngSwitchCase="DataState.LOADED">
-        <form [formGroup]="form" (ngSubmit)="submitForm()">
-            <div>
-                <label for="sname">Name</label>
-                <input 
-                    type="text" 
-                    name="sname"
-                    autocomplete="off"
-                    formControlName="sname"
-                >
-                <app-validation-message
-                    [component]="sname"
-                    message="Please provide a supplier name"
-                    [submitted]="submitted"
-                    [isFormField]="isFormField"
-                ></app-validation-message>
-            </div>
-            <div>
+        <table class="mat-elevation-z8 demo-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Quantity</th>
+                    <th>List</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{sname?.value}}</td>
+                    <td>{{products?.value.length}}</td>
+                    <td>
+                        <tr class="inner-row-table" *ngFor="let p of products?.value; let i = index" >
+                            <td>{{i + 1}}- {{p.pname}}</td>
+                        </tr>
+                    </td>
+                </tr>
+            </tbody>    
+        </table>  
+        <form 
+            class="form" 
+            *ngIf="{productList:productList$ | async,productLength: productLength$ | async} as obj"
+            [formGroup]="form" 
+            (ngSubmit)="submitForm()"
+        >
+            <div *ngIf="obj.productList && obj.productLength">
+                <div>
+                    <mat-form-field>
+                        <mat-label>Name</mat-label>
+                        <input 
+                            matInput
+                            type="text" 
+                            name="sname"
+                            autocomplete="off"
+                            formControlName="sname"
+                        >
+                        <mat-error 
+                            *ngIf="sname?.invalid && (sname?.dirty || sname?.touched || submitted)"
+                        >
+                            Please provide a name
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+                <div [formGroup]="productCheckBoxGroup">
+                    <label for="products">Products:</label>
+                    <div *ngFor="let product of obj.productList">
+                        <mat-checkbox
+                            [formControlName]="product.product_id"
+                            (change)="checkedBox(product)"
+                        >{{ product.pname }}</mat-checkbox>
+                    </div>
+                </div>
+                <div>
+                    <button type="submit" mat-flat-button color="primary">Submit</button>
+                </div>    
+            </div>    
+            <div *ngIf="!obj.productLength">
+                <h1 style="width:100%;text-align:center;padding-top:35px;">No products available</h1>
+            </div>        
+            
+            <!-- <div>
                 <div for="supplier_products">Products:</div>
                 <div *ngFor="let product of (productList$ | async)">
                     <input 
-                        type="checkbox" 
-                        name="product"
+                        name="products"
                         [value]="product"
                         [checked]="product.isChecked"
+                        formControlName="products"
                         (change)="checkedBox(product,$event)"
+                        type="checkbox" 
                     >
                     <label 
                         [for]="product.pname"
                     >{{product.pname}}</label>
                 </div>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="border-bottom: 1.5px black solid;">Name</th>
-                        <th style="border-bottom: 1.5px black solid;">Quantity</th>
-                        <th style="padding:0px 15px;border-bottom: 1.5px black solid;">List</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td style=" margin:5px 0px;">{{sname?.value}}</td>
-                        <td style="text-align: center;margin:5px 0px;">{{products?.value.length}}</td>
-                        <td style="padding:0px 15px;margin:5px 0px;">
-                            <tr *ngFor="let p of products?.value; let i = index" >
-                                <td style="padding:5px 0px;">{{i + 1}}- {{p.pname}}</td>
-                            </tr>
-                        </td>
-                    </tr>
-                </tbody>    
-            </table>  
-            <div>
-                <input type="submit" value="Submit">
-            </div>
+            </div> -->
         </form>
     </ng-container>
-    <ng-container *ngSwitchCase="DataState.ERROR">
-        {{ error$ | async }}
-    </ng-container>
+    <app-view-message-box
+        *ngSwitchCase="DataState.ERROR"
+        [type]="DataState.ERROR"
+    ></app-view-message-box>
 </ng-container>

@@ -36,25 +36,30 @@ import { TransactionComponent } from './components/transaction/transaction.compo
 import { FormTransactionComponent } from './components/form-transaction/form-transaction.component';
 import { transactionReducer } from './store/reducers/transactionReducers';
 import { TransactionEffects } from './store/effects/transactionEffects';
-
+import { ButtonComponent } from './components/ui/button/button.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatButtonModule } from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { ViewHeaderComponent } from './components/ui/view-header/view-header.component';
+import { ViewMessageBoxComponent } from './components/ui/view-message-box/view-message-box.component';
+import { MatTableModule } from '@angular/material/table';
+import {CdkTableModule} from '@angular/cdk/table';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatRadioModule} from '@angular/material/radio';
+import { FilterBranchesPipe } from './pipes/filter-branches.pipe';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatSortModule} from '@angular/material/sort';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatSidenavModule} from '@angular/material/sidenav';
+import { LandingPageComponent } from './components/landing-page/landing-page.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    // EmployeesComponent,
-    // FormEmployeeComponent,
-    // BranchesComponent,
-    // FormBranchComponent,
-    // CustomersComponent,
-    // FormCustomerComponent,
-    // ProductsComponent,
-    // FormProductComponent,
-    // SuppliersComponent,
-    // FormSupplierComponent,
-    // InventorysComponent,
-    // FormInventoryComponent,
-    // TransactionsComponent,
-    // FormTransactionsComponent,
     ValidationMessageComponent,
     EmpsComponent,
     FormEmpsComponent,
@@ -69,6 +74,11 @@ import { TransactionEffects } from './store/effects/transactionEffects';
     InventoryComponent,
     TransactionComponent,
     FormTransactionComponent,
+    ButtonComponent,
+    ViewHeaderComponent,
+    ViewMessageBoxComponent,
+    FilterBranchesPipe,
+    LandingPageComponent,
   ],
   imports: [
     BrowserModule,
@@ -76,6 +86,21 @@ import { TransactionEffects } from './store/effects/transactionEffects';
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
+    MatButtonModule,
+    MatIconModule,
+    BrowserAnimationsModule,
+    MatProgressSpinnerModule,
+    MatTableModule,
+    CdkTableModule,
+    MatTooltipModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatRadioModule,
+    MatCheckboxModule,
+    MatSortModule,
+    MatToolbarModule,
+    MatSidenavModule,
     StoreModule.forRoot({
       employees:employeeReducer,
       branches:branchReducer,
@@ -95,6 +120,7 @@ import { TransactionEffects } from './store/effects/transactionEffects';
       TransactionEffects
     ]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
+    BrowserAnimationsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

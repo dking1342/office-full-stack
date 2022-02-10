@@ -1,155 +1,174 @@
 <ng-container *ngIf="(appStateForm$ | async) as appStateForm" [ngSwitch]="appStateForm.dataState">
-    <ng-container *ngSwitchCase="DataState.LOADING">
-        loading...
-    </ng-container>
+    <app-view-message-box
+        *ngSwitchCase="DataState.LOADING"
+        [type]="DataState.LOADING"
+    ></app-view-message-box>
     <ng-container *ngSwitchCase="DataState.LOADED">
-        loaded successfully
+        <ng-container *ngIf="{employees:employees$ | async,products:products$ | async, customers: customers$ | async, suppliers: suppliers$ | async} as o">
+            <div *ngIf="o.employees && o.products && o.customers && o.suppliers">
+                <table class="mat-elevation-z8 demo-table">
+                    <thead>
+                        <th>Employee</th>
+                        <th>Product</th>
+                        <th>Type</th>
+                        <th>Quantity</th>
+                        <th>Supplier</th>
+                        <th>Customer</th>
+                    </thead>
+                    <tbody>
+                        <td>{{ firstName }} {{lastName }}</td>
+                        <td>{{ pname }}</td>
+                        <td>{{ transactionType }}</td>
+                        <td>{{transaction_quantity_form }}</td>
+                        <td>{{ sname }}</td>
+                        <td>{{ cname }}</td>
+                    </tbody>
+                </table>
+                
+                <form class="form" [formGroup]="selectForm" (ngSubmit)="submitForm()">
+                    <div>
+                        <mat-form-field>
+                            <mat-label>Employee</mat-label>
+                            <mat-select>
+                                <mat-option value="null" disabled>Choose an employee</mat-option>
+                                <mat-option *ngFor="let emp of o.employees" [value]="emp">
+                                    {{ emp.firstName }} {{ emp.lastName }}
+                                </mat-option>
+                            </mat-select>
+                            <mat-error
+                                *ngIf="employee?.invalid && (employee?.dirty || employee?.touched || submitted)"
+                            >
+                                Please select an employee
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+
+                    <!-- <div>
+                        <label for="employee">Employee</label>
+                        <select 
+                            name="employee" 
+                            formControlName="employee" 
+                            (change)="changeEmployee()"
+                        >
+                            <option [value]="null" disabled>Choose an employee</option>
+                            <option *ngFor="let employee of o.employee" [ngValue]="employee">
+                                {{ employee.firstName }} {{ employee.lastName }}
+                            </option>
+                        </select>
+                        <app-validation-message
+                            [component]="employee"
+                            message="Please select an employee"
+                            [submitted]="submitted"
+                            [isFormField]="isFormField"
+                            [type]="type"
+                        ></app-validation-message>  
+                    </div> -->
+                    <!-- <div>
+                        <label for="product">Product: </label>
+                        <select 
+                            name="product" 
+                            formControlName="product"
+                            (change)="changeProduct()"
+                        >
+                            <option [value]="null" disabled>Choose a product</option>
+                            <option *ngFor="let product of o.product" [ngValue]="product">
+                                {{product.pname}}
+                            </option>
+                        </select>
+                        <app-validation-message
+                            [component]="product"
+                            message="Please select a product"
+                            [submitted]="submitted"
+                            [isFormField]="isFormField"
+                            [type]="type"
+                        ></app-validation-message>
+                    </div> -->
+                    <!-- <div>
+                        <label for="type">Type: </label>
+                        <select 
+                            name="transactionType" 
+                            formControlName="transactionType"
+                            (change)="changeType()"
+                        >
+                            <option [ngValue]="null" disabled>Choose a type</option>
+                            <option *ngFor="let type of types" [ngValue]="type">
+                                {{type}}
+                            </option>
+                        </select>
+                        <app-validation-message
+                            [component]="transactionType"
+                            message="Please select an transaction type"
+                            [submitted]="submitted"
+                            [isFormField]="isFormField"
+                            [type]="type"
+                        ></app-validation-message>
+                    </div> -->
+                    <!-- <div *ngIf="transactionType === 'BUY'">
+                        <label for="supplier">Supplier</label>
+                        <select 
+                            name="supplier" 
+                            formControlName="supplier" 
+                            (change)="changeSupplier()"
+                        >
+                            <option [value]="null" disabled>Choose a supplier</option>
+                            <option *ngFor="let supplier of filteredSuppliers" [ngValue]="supplier">
+                                {{supplier.sname}}
+                            </option>
+                        </select>
+                        <app-validation-message
+                            [component]="supplier"
+                            message="Please select a supplier"
+                            [submitted]="submitted"
+                            [isFormField]="isFormField"
+                            [type]="type"
+                        ></app-validation-message>
+                    </div>            
+                    <div *ngIf="transactionType === 'SELL'">
+                        <label for="customer">Customer</label>
+                        <select 
+                            name="customer" 
+                            formControlName="customer" 
+                            (change)="changeCustomer()"
+                        >
+                            <option [value]="null" disabled>Choose a customer</option>
+                            <option *ngFor="let customer of o.customer" [ngValue]="customer">
+                                {{customer.cname}}
+                            </option>
+                        </select>
+                        <app-validation-message
+                            [component]="customer"
+                            message="Please select a customer"
+                            [submitted]="submitted"
+                            [isFormField]="isFormField"
+                            [type]="type"
+                        ></app-validation-message>
+                    </div>  
+                    <div>
+                        <label for="quantity">Quantity</label>
+                        <input 
+                            type="number" 
+                            min="0" 
+                            name="transactionQuantity" 
+                            formControlName="transaction_quantity"
+                            (change)="changeQuantity()"
+                        >
+                        <app-validation-message
+                            [component]="transaction_quantity"
+                            message="Please enter a quantity"
+                            [submitted]="submitted"
+                            [isFormField]="isFormField"
+                            [type]="type"
+                        ></app-validation-message>
+                    </div> -->
+                </form>
+
+                <input type="submit" value="Submit">
+            </div>
+        </ng-container>        
     </ng-container>
-    <ng-container *ngSwitchCase="DataState.ERROR">
-        {{appStateForm.error}}
-    </ng-container>
-</ng-container>
-<ng-container *ngIf="{employee:employees$ | async,product:products$ | async, customer: customers$ | async, supplier: suppliers$ | async} as o">
-    <br *ngIf="o.employee && o.product && o.customer && o.supplier">
-        
-        <form [formGroup]="selectForm" (ngSubmit)="submitForm()">
-            <div>
-                <label for="employee">Employee</label>
-                <select 
-                    name="employee" 
-                    formControlName="employee" 
-                    (change)="changeEmployee()"
-                >
-                    <option [value]="null" disabled>Choose an employee</option>
-                    <option *ngFor="let employee of o.employee" [ngValue]="employee">
-                        {{ employee.firstName }} {{ employee.lastName }}
-                    </option>
-                </select>
-                <app-validation-message
-                    [component]="employee"
-                    message="Please select an employee"
-                    [submitted]="submitted"
-                    [isFormField]="isFormField"
-                    [type]="type"
-                ></app-validation-message>  
-            </div>
-            <div>
-                <label for="product">Product: </label>
-                <select 
-                    name="product" 
-                    formControlName="product"
-                    (change)="changeProduct()"
-                >
-                    <option [value]="null" disabled>Choose a product</option>
-                    <option *ngFor="let product of o.product" [ngValue]="product">
-                        {{product.pname}}
-                    </option>
-                </select>
-                <app-validation-message
-                    [component]="product"
-                    message="Please select a product"
-                    [submitted]="submitted"
-                    [isFormField]="isFormField"
-                    [type]="type"
-                ></app-validation-message>
-            </div>
-            <div>
-                <label for="type">Type: </label>
-                <select 
-                    name="transactionType" 
-                    formControlName="transactionType"
-                    (change)="changeType()"
-                >
-                    <option [ngValue]="null" disabled>Choose a type</option>
-                    <option *ngFor="let type of types" [ngValue]="type">
-                        {{type}}
-                    </option>
-                </select>
-                <app-validation-message
-                    [component]="transactionType"
-                    message="Please select an transaction type"
-                    [submitted]="submitted"
-                    [isFormField]="isFormField"
-                    [type]="type"
-                ></app-validation-message>
-            </div>
-            <div *ngIf="transactionType === 'BUY'">
-                <label for="supplier">Supplier</label>
-                <select 
-                    name="supplier" 
-                    formControlName="supplier" 
-                    (change)="changeSupplier()"
-                >
-                    <option [value]="null" disabled>Choose a supplier</option>
-                    <option *ngFor="let supplier of filteredSuppliers" [ngValue]="supplier">
-                        {{supplier.sname}}
-                    </option>
-                </select>
-                <app-validation-message
-                    [component]="supplier"
-                    message="Please select a supplier"
-                    [submitted]="submitted"
-                    [isFormField]="isFormField"
-                    [type]="type"
-                ></app-validation-message>
-            </div>            
-            <div *ngIf="transactionType === 'SELL'">
-                <label for="customer">Customer</label>
-                <select 
-                    name="customer" 
-                    formControlName="customer" 
-                    (change)="changeCustomer()"
-                >
-                    <option [value]="null" disabled>Choose a customer</option>
-                    <option *ngFor="let customer of o.customer" [ngValue]="customer">
-                        {{customer.cname}}
-                    </option>
-                </select>
-                <app-validation-message
-                    [component]="customer"
-                    message="Please select a customer"
-                    [submitted]="submitted"
-                    [isFormField]="isFormField"
-                    [type]="type"
-                ></app-validation-message>
-            </div>  
-            <div>
-                <label for="quantity">Quantity</label>
-                <input 
-                    type="number" 
-                    min="0" 
-                    name="transactionQuantity" 
-                    formControlName="transaction_quantity"
-                    (change)="changeQuantity()"
-                >
-                <app-validation-message
-                    [component]="transaction_quantity"
-                    message="Please enter a quantity"
-                    [submitted]="submitted"
-                    [isFormField]="isFormField"
-                    [type]="type"
-                ></app-validation-message>
-            </div>
-        </form>
-        <br>
-        <table>
-            <thead>
-                <th>Employee</th>
-                <th>Product</th>
-                <th>Type</th>
-                <th>Quantity</th>
-                <th>Supplier</th>
-                <th>Customer</th>
-            </thead>
-            <tbody>
-                <td>{{ firstName }} {{lastName }}</td>
-                <td>{{ pname }}</td>
-                <td>{{ transactionType }}</td>
-                <td>{{transaction_quantity_form }}</td>
-                <td>{{ sname }}</td>
-                <td>{{ cname }}</td>
-            </tbody>
-        </table>
-        <input type="submit" value="Submit">
-    
+    <app-view-message-box
+        *ngSwitchCase="DataState.ERROR"
+        [type]="DataState.ERROR"
+    ></app-view-message-box>
 </ng-container>

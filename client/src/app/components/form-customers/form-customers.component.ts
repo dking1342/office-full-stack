@@ -1,17 +1,16 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
-import { FetchService } from 'src/app/services/fetch.service';
-import { Customer, FetchResponse, ResponseAppState } from 'src/types/general';
-import { selectCustomerDataState, selectCustomerError, selectCustomerFilteredCustomerData, selectCustomerFormData } from 'src/app/store/selectors/customerSelectors';
+import { Store } from '@ngrx/store';
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { ADD_CUSTOMER, UPDATE_CUSTOMER } from 'src/app/store/actions/customerActions';
+import { selectCustomerDataState, selectCustomerError, selectCustomerFilteredCustomerData, selectCustomerFormData } from 'src/app/store/selectors/customerSelectors';
+import { Customer, FetchResponse, ResponseAppState } from 'src/types/general';
 
 @Component({
   selector: 'app-form-customers',
   templateUrl: './form-customers.component.html',
-  styleUrls: ['./form-customers.component.css']
+  styleUrls: ['./form-customers.component.css','../../app.component.css']
 })
 export class FormCustomersComponent implements OnInit {
   @Input() type:string = "";
@@ -41,7 +40,6 @@ export class FormCustomersComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router:Router,
-    private fetchService:FetchService,
     private store: Store<ResponseAppState<FetchResponse<Customer>>>
   ) { }
 

@@ -11,7 +11,7 @@ import { Branch } from 'src/types/general';
 @Component({
   selector: 'app-form-branches',
   templateUrl: './form-branches.component.html',
-  styleUrls: ['./form-branches.component.css']
+  styleUrls: ['./form-branches.component.css','../../app.component.css']
 })
 export class FormBranchesComponent implements OnInit {
   @Input() type:string = "";
@@ -23,14 +23,8 @@ export class FormBranchesComponent implements OnInit {
   form = this.fb.group({
     branch_id:[""],
     location:["",Validators.required],
-    branchStatus:["",Validators.required]
+    branchStatus:[null,Validators.required]
   });
-  
-  // reactive select state
-  selectForm = this.fb.group({
-    status:[null,Validators.required]
-  });
-
   locationStatus: Status[] = [];
 
   // validation state
@@ -52,10 +46,8 @@ export class FormBranchesComponent implements OnInit {
     private store: Store
   ) { }
 
-  // getters for select state
-  get status(){ return this.selectForm.get("status")};
-
   // getters for form state
+  get branch_id(){ return this.form.get("branch_id")};
   get location(){ return this.form.get("location")};
   get branchStatus(){ return this.form.get("branchStatus")};  
 
@@ -101,12 +93,5 @@ export class FormBranchesComponent implements OnInit {
     this.closeForm.emit();
     this.refreshForm.emit();
   }
-
-  // changestatus
-  changeStatus(){
-    this.branchStatus?.setValue(this.status?.value);
-  }
-
-
 
 }

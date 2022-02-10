@@ -39,6 +39,7 @@ export const supplierReducer = createReducer(
     on(GET_SUPPLIERS_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         }
         return state;
@@ -67,6 +68,7 @@ export const supplierReducer = createReducer(
     on(ADD_SUPPLIER_ERROR,(state,{error})=>{
         state={
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         };
         return state;
@@ -93,6 +95,7 @@ export const supplierReducer = createReducer(
     on(UPDATE_SUPPLIER_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         };
         return state;
@@ -131,6 +134,7 @@ export const supplierReducer = createReducer(
     on(DELETE_SUPPLIER_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         };
         return state;

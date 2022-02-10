@@ -1,16 +1,17 @@
 import { Component, OnInit } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { map } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { GET_PRODUCT, GET_PRODUCTS, GET_PRODUCTS_SUCCESS } from 'src/app/store/actions/productActions';
-import { selectCustomerFilteredCustomerData, selectCustomerDataState, selectCustomerError } from 'src/app/store/selectors/customerSelectors';
 import { selectProductDataState, selectProductError, selectProductFilteredProductData } from 'src/app/store/selectors/productSelectors';
-import { ResponseAppState, FetchResponse, Product } from 'src/types/general';
+import { FetchResponse, Product, ResponseAppState } from 'src/types/general';
 
 @Component({
   selector: 'app-product',
   templateUrl: './product.component.html',
-  styleUrls: ['./product.component.css']
+  styleUrls: ['./product.component.css','../../app.component.css']
 })
 export class ProductComponent implements OnInit {
 
@@ -28,6 +29,16 @@ export class ProductComponent implements OnInit {
   title:string = "";
   url:string = this.router.url.toString().slice(1,);
   p_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
+
+  // material ui form state
+  displayedColumns: string[] = ['name','info']; 
+  dataSource$ = this.data$.pipe(
+    map(item=>{
+      let ds = new MatTableDataSource<Product>();
+      ds.data.push(...item!);
+      return ds;
+    })
+  );   
   
   constructor(
     private store:Store<ResponseAppState<FetchResponse<Product>>>,

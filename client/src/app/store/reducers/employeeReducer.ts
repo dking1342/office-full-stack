@@ -28,18 +28,15 @@ export const employeeReducer = createReducer(
             ...state,
             dataState:Requeststatus.LOADING
         };
-        localStorage.setItem('employees',JSON.stringify(state));
-        let localState = JSON.parse(localStorage.getItem('employees')!);
-        return localState;
+        return state;
     }),
     on(EmployeeActions.GET_EMPLOYEES_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error:String(error),
         };
-        localStorage.setItem('employees',JSON.stringify(state));
-        let localState = JSON.parse(localStorage.getItem('employees')!);
-        return localState;
+        return state;
     }),
     on(EmployeeActions.GET_EMPLOYEES_SUCCESS, (state,{res}) => {
         state = {
@@ -69,11 +66,10 @@ export const employeeReducer = createReducer(
     on(EmployeeActions.ADD_EMPLOYEE_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         };
-        localStorage.setItem('employees',JSON.stringify(state));
-        let localState = JSON.parse(localStorage.getItem('employees')!);
-        return localState;
+        return state;
     }),
     on(EmployeeActions.ADD_EMPLOYEE_SUCCESS,(state,{res})=>{
         state = {
@@ -99,6 +95,7 @@ export const employeeReducer = createReducer(
     on(EmployeeActions.DELETE_EMPLOYEE_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         }
         return state;
@@ -127,6 +124,7 @@ export const employeeReducer = createReducer(
     on(EmployeeActions.UPDATE_EMPLOYEE_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         }
         return state;

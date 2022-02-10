@@ -1,105 +1,115 @@
 <ng-container *ngIf="(loadState$ | async) as loadState" [ngSwitch]="loadState">
-    <ng-container *ngSwitchCase="DataState.LOADING">
-        loading...
-    </ng-container>
+    <app-view-message-box
+        *ngSwitchCase="DataState.LOADING"
+        [type]="DataState.LOADING"
+    ></app-view-message-box>
     <ng-container *ngSwitchCase="DataState.LOADED">
-        <form [formGroup]="form" (ngSubmit)="submitForm()">
+        <table class="mat-elevation-z4 demo-table" color="primary">
+            <thead>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Role</th>
+                <th>Branch</th>
+            </thead>
+            <tbody>
+                <td>{{ firstName?.value }}</td>
+                <td>{{ lastName?.value }}</td>
+                <td>{{ role?.value }}</td>
+                <td>{{ location?.value }}</td>
+            </tbody>
+        </table>
+        <form class="form" [formGroup]="form" (ngSubmit)="submitForm()">
             <div>
-                <label for="firstName">First Name</label>
-                <input 
-                    type="text" 
-                    name="firstName" 
-                    autocomplete="off"
-                    formControlName="firstName"
-                >
-                <app-validation-message
-                    [component]="firstName"
-                    message="Please provide a first name"
-                    [submitted]="submitted"
-                    [isFormField]="isFormField"
-                    [type]="type"
-                ></app-validation-message>
-            </div>
-            <div>
-                <label for="lastName">Last Name</label>
-                <input 
-                    type="text" 
-                    name="lastName" 
-                    autocomplete="off"
-                    formControlName="lastName"
-                >
-                <app-validation-message
-                    [component]="lastName"
-                    message="Please provide a last name"
-                    [submitted]="submitted"
-                    [isFormField]="isFormField"
-                    [type]="type"
-                ></app-validation-message>
-            </div>
-            <div>
-                <label for="role">Role</label>
-                <select 
-                    formControlName="role" 
-                    name="role"
-                >
-                    <option value="null" disabled>Choose a role</option>
-                    <option *ngFor="let role of roles" [ngValue]="role">
-                        {{ role }}
-                    </option>
-                </select>
-                <app-validation-message
-                    [component]="role"
-                    message="Please select a role"
-                    [submitted]="submitted"
-                    [isFormField]="isFormField"
-                    [type]="type"
-                ></app-validation-message>
-            </div>
-            <div [formGroup]="selectForm">
-                <label for="branch">Branches:</label>
-                <div *ngFor="let branch of (branches$ | async)">
+                <mat-form-field>
+                    <mat-label>First Name</mat-label>
                     <input 
-                        type="radio" 
-                        name="branchDropDown"
-                        formControlName="branchDropDown"
-                        [value]="branch"
-                        (change)="changeBranch()"
+                        matInput
+                        type="text"
+                        name="firstName" 
+                        autocomplete="off"
+                        formControlName="firstName"
+                        maxlength="15"
                     >
-                    <label for="branch">{{branch.location}}</label>
-                </div>
-                <app-validation-message
-                    [component]="branchDropDown"
-                    message="Please select a branch"
-                    [submitted]="submitted"
-                    [isFormField]="isFormField"
-                    [type]="type"
-                ></app-validation-message>
+                    <mat-error
+                        *ngIf="firstName?.invalid && (firstName?.dirty || firstName?.touched || submitted)"
+                    >
+                        Please provide a first name
+                    </mat-error>
+                </mat-form-field>
             </div>
-    
-            <table>
-                <thead>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Role</th>
-                    <th>Branch</th>
-                </thead>
-                <tbody>
-                    <td>{{ firstName?.value }}</td>
-                    <td>{{ lastName?.value }}</td>
-                    <td>{{ role?.value }}</td>
-                    <td>{{ location?.value }}</td>
-                </tbody>
-            </table>
-            <br>
-    
             <div>
-                <input type="submit" value="Submit">
+                <mat-form-field>
+                    <mat-label>Last Name</mat-label>
+                    <input 
+                        matInput
+                        type="text"
+                        name="lastName" 
+                        autocomplete="off"
+                        formControlName="lastName"
+                        maxlength="20"
+                    >
+                    <mat-error
+                        *ngIf="lastName?.invalid && (lastName?.dirty || lastName?.touched || submitted)"
+                    >
+                        Please provide a last name
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <div>
+                <mat-form-field>
+                    <mat-label>Role</mat-label>
+                    <mat-select
+                        formControlName="role" 
+                        name="role"
+                    >
+                        <mat-option value="null" disabled>Choose a role</mat-option>
+                        <mat-option *ngFor="let role of roles" [value]="role">
+                            {{ role }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-error
+                        *ngIf="role?.invalid && (role?.dirty || role?.touched || submitted)"
+                    >
+                        Please select a role
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <div class="branches" [formGroup]="selectForm" *ngIf="(branches$ | async) as branches">
+                <label for="branch">Branch:</label>
+                    <div>
+                        <mat-radio-group
+                            class="branchDropDown"
+                            name="branchDropDown"
+                            formControlName="branchDropDown"
+                            (change)="changeBranch()"
+                        >
+                            <mat-radio-button
+                                *ngFor="let branch of branches | filterBranches"
+                                [value]="branch"
+                            >
+                                {{ branch.location }}
+                            </mat-radio-button>
+                        </mat-radio-group>    
+                    </div>
+                    <mat-error
+                        *ngIf="branchDropDown?.invalid && (branchDropDown?.dirty || branchDropDown?.touched || submitted)"
+                    >
+                        <sub>Please select a branch</sub>
+                    </mat-error>                
+            </div>
+            <div>
+                <button 
+                    type="submit"
+                    mat-flat-button
+                    color="primary"
+                >Submit</button>
             </div>
         </form>
     </ng-container>
-    <ng-container *ngSwitchCase="DataState.ERROR">
-        {{ error$ | async }}
-    </ng-container>
+    <app-view-message-box
+        *ngSwitchCase="DataState.ERROR"
+        [type]="DataState.ERROR"
+    ></app-view-message-box>
 </ng-container>
 
 

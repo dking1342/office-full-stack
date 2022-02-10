@@ -2,20 +2,19 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { BehaviorSubject, catchError, map, of } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { Roles } from 'src/app/enums/roles';
-import { FetchService } from 'src/app/services/fetch.service';
 import { GET_BRANCHES, GET_BRANCHES_SUCCESS } from 'src/app/store/actions/branchActions';
 import { ADD_EMPLOYEE, UPDATE_EMPLOYEE } from 'src/app/store/actions/employeeActions';
 import { selectBranchFilteredBranchData } from 'src/app/store/selectors/branchSelectors';
 import { selectEmployeeDataState, selectEmployeeError, selectEmployeeFilteredEmployeeData, selectEmployeeFormData } from 'src/app/store/selectors/employeeSelector';
 import { Branch, Employee, FetchResponse, ResponseAppState } from 'src/types/general';
 
+
 @Component({
   selector: 'app-form-emps',
   templateUrl: './form-emps.component.html',
-  styleUrls: ['./form-emps.component.css']
+  styleUrls: ['./form-emps.component.css','../../app.component.css'],
 })
 export class FormEmpsComponent implements OnInit {
   @Input() type = "";
@@ -58,11 +57,9 @@ export class FormEmpsComponent implements OnInit {
   error$ = this.store.select(selectEmployeeError);
   readonly DataState = Requeststatus;
 
-
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private fetchService: FetchService,
     private store: Store<ResponseAppState<FetchResponse<Employee>>>,
     private storeBranch: Store<ResponseAppState<FetchResponse<Branch>>>,
   ) { }
@@ -71,6 +68,7 @@ export class FormEmpsComponent implements OnInit {
   get branchDropDown(){ return this.selectForm.get("branchDropDown")};
 
   // getters for form state
+  get empId(){ return this.form.get("id")};
   get firstName(){ return this.form.get("firstName")};
   get lastName(){ return this.form.get("lastName")};
   get role(){ return this.form.get("role")};

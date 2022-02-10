@@ -1,53 +1,79 @@
 <ng-container *ngIf="(loadState$ | async) as loadState" [ngSwitch]="loadState">
-    <ng-container *ngSwitchCase="DataState.LOADING">
-        loading...
-    </ng-container>
+    <app-view-message-box
+        *ngSwitchCase="DataState.LOADING"
+        [type]="DataState.LOADING"
+    ></app-view-message-box>
     <ng-container *ngSwitchCase="DataState.LOADED">
-        <h1>
-            {{ title }} 
-            <span *ngIf="isAll">
-                <button (click)="showAddForm = !showAddForm">Add</button>
-            </span>
-        </h1>
+        <app-view-header
+            [title]="title"
+            [isAll]="isAll"
+            [showAddForm]="showAddForm"
+            (toggleAddForm)="closeAddForm()"        
+        ></app-view-header>
         <app-form-customers
             *ngIf="showAddForm" 
             [type]="formType" 
             (closeForm)="closeAddForm()"
-            (refreshForm)="refreshEmployeeView()"
+            (refreshForm)="refreshCustomerView()"
         ></app-form-customers>
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th *ngIf="isAll">Info</th>
-                    <th *ngIf="!isAll">Edit</th>
-                    <th *ngIf="!isAll">Delete</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let customer of (data$ | async )">
-                    <td>{{customer.cname}}</td>
-                    <td *ngIf="isAll"><button (click)="getInfo(customer.customer_id)">Info</button></td>
-                    <td *ngIf="!isAll"><button (click)="showEditForm = !showEditForm">Edit</button></td>
-                    <td *ngIf="!isAll"><button (click)="onDelete(customer.customer_id)">Delete</button></td>
-                </tr>
-            </tbody>    
+        <table
+            *ngIf="!showAddForm && (dataSource$ | async) as dataSource"
+            mat-table            
+            class="mat-elevation-z8 demo-table"
+            [dataSource]="dataSource"
+        >
+            <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>Name</th>
+                <td mat-cell *matCellDef="let element">{{ element.cname }}</td>
+            </ng-container>
+            <ng-container matColumnDef="info">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <div *ngIf="isAll">
+                        <button 
+                            mat-icon-button 
+                            (click)="getInfo(element.customer_id)"
+                            color="primary" 
+                            matTooltip="See more..."
+                        >
+                            <mat-icon>more_vert</mat-icon>
+                        </button>                        
+                    </div>
+                    <div class="edit-delete-col" *ngIf="!isAll">
+                        <button 
+                            mat-icon-button 
+                            (click)="showEditForm = !showEditForm" 
+                            color="primary" 
+                            matTooltip="Edit entry"
+                        >
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button 
+                            mat-icon-button 
+                            (click)="onDelete(element.customer_id)" 
+                            color="warn" 
+                            matTooltip="Delete entry"
+                        >
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+                </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
-
-    
         <ng-container *ngIf="showEditForm">
-            <h3>Edit {{ title }}</h3>
+            <h3 class="edit-form-header">Edit {{ title }}</h3>
             <app-form-customers
                 [type]="formType" 
                 (closeForm)="closeEditForm()"
-                (refreshForm)="refreshEmployeeView()"
+                (refreshForm)="refreshCustomerView()"
             ></app-form-customers>
         </ng-container>
-        
     </ng-container>
-    <ng-container *ngSwitchCase="DataState.ERROR">
-        {{ error$ | async }}
-    </ng-container>
-
+    <app-view-message-box
+        *ngSwitchCase="DataState.ERROR"
+        [type]="DataState.ERROR"
+    ></app-view-message-box>
 </ng-container>
 

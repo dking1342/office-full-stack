@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { Router } from '@angular/router';
+import { MatSelectChange } from '@angular/material/select';
+import { Sort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { Store } from '@ngrx/store';
-import { BehaviorSubject, filter, map, mergeMap } from 'rxjs';
+import { map } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
-import { FILTER_INVENTORY, GET_INVENTORY, GET_INVENTORY_SUCCESS, SEARCH_INVENTORY, SORT_INVENTORY, SORT_QUANTITY, UNFILTER_INVENTORY } from 'src/app/store/actions/inventoryActions';
-import { selectInventoryData, selectInventoryDataState, selectInventoryError, selectInventoryFilteredData, selectInventoryFilterResults } from 'src/app/store/selectors/inventorySelectors';
-import { selectProductFilteredProductData } from 'src/app/store/selectors/productSelectors';
+import { FILTER_INVENTORY, GET_INVENTORY, SEARCH_INVENTORY, SORT_INVENTORY, SORT_QUANTITY, UNFILTER_INVENTORY } from 'src/app/store/actions/inventoryActions';
+import { selectInventoryData, selectInventoryDataState, selectInventoryError, selectInventoryFilteredData } from 'src/app/store/selectors/inventorySelectors';
 import { FetchResponse, Inventory, ResponseAppState } from 'src/types/general';
 
 @Component({
@@ -17,15 +18,21 @@ import { FetchResponse, Inventory, ResponseAppState } from 'src/types/general';
 export class InventoryComponent implements OnInit {
 
   // observables
+  productList$ = this.store.select(selectInventoryData);
   data$ = this.store.select(selectInventoryFilteredData);
   loadState$ = this.store.select(selectInventoryDataState);
   error$ = this.store.select(selectInventoryError);
   readonly DataState = Requeststatus;
 
-  productList$ = this.store.select(selectInventoryData);
-  sortOptions = ["none","asc","des"];
-  sortInventoryIndex = 0;
-  sortQuantityIndex = 0;  
+  // material ui state
+  displayedColumns: string[] = ['product', 'quantity'];
+  dataSource$ = this.data$.pipe(
+    map(item=>{
+      let ds = new MatTableDataSource<Inventory>();
+      ds.data.push(...item!);
+      return ds;
+    })
+  ); 
 
   // form state
   form = this.fb.group({
@@ -40,7 +47,6 @@ export class InventoryComponent implements OnInit {
 
   constructor(
     private store:Store<ResponseAppState<FetchResponse<Inventory>>>,
-    private router:Router,
     private fb:FormBuilder,
   ) { }
 
@@ -57,35 +63,34 @@ export class InventoryComponent implements OnInit {
   onSearchInventory(){
     this.store.dispatch(SEARCH_INVENTORY({search:this.search!.value}));
     this.filter?.setValue(null);
-    this.sortInventoryIndex = 0;
-    this.sortQuantityIndex = 0;
   }
 
-  onFilterInventory(e:any){
+  onFilterInventory(e:MatSelectChange){
     this.search?.setValue("");
-    this.sortInventoryIndex = 0;
-    this.sortQuantityIndex = 0;
-    if(e.target.value === "all"){
+    if(e.value === "all"){
       this.store.dispatch(UNFILTER_INVENTORY());
     } else {
-      this.store.dispatch(FILTER_INVENTORY({id:e.target.value}));
+      this.store.dispatch(FILTER_INVENTORY({id:e.value}));
     }
   }
 
-  sortInventoryColumn(){
-    this.sortQuantityIndex = 0;
-    this.sortInventoryIndex < 2 
-      ? this.sortInventoryIndex++ 
-      : this.sortInventoryIndex = 0;
-    this.store.dispatch(SORT_INVENTORY({direction:this.sortOptions[this.sortInventoryIndex]}));
+  sortData(sort:Sort){
+    if(sort.active === "product"){
+      this.sortInventoryColumn(sort.direction);
+    }
+    if(sort.active === "quantity"){
+      this.sortQuantityColumn(sort.direction);
+    }
   }
 
-  sortQuantityColumn(){
-    this.sortInventoryIndex = 0;
-    this.sortQuantityIndex < 2
-      ? this.sortQuantityIndex++
-      : this.sortQuantityIndex = 0
-    this.store.dispatch(SORT_QUANTITY({direction:this.sortOptions[this.sortQuantityIndex]}));
+  sortInventoryColumn(direction:string){
+    direction = direction ? direction : "none";
+    this.store.dispatch(SORT_INVENTORY({direction}));
+  }
+  
+  sortQuantityColumn(direction:string){
+    direction = direction ? direction : "none";
+    this.store.dispatch(SORT_QUANTITY({direction}));
   }
 
 }

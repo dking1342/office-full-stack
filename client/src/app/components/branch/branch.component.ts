@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { map } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { GET_BRANCH, GET_BRANCHES, GET_BRANCHES_SUCCESS } from 'src/app/store/actions/branchActions';
 import { selectBranchDataState, selectBranchError, selectBranchFilteredBranchData } from 'src/app/store/selectors/branchSelectors';
@@ -9,7 +11,7 @@ import { Branch, FetchResponse, ResponseAppState } from 'src/types/general';
 @Component({
   selector: 'app-branch',
   templateUrl: './branch.component.html',
-  styleUrls: ['./branch.component.css']
+  styleUrls: ['./branch.component.css','../../app.component.css']
 })
 export class BranchComponent implements OnInit {
 
@@ -28,6 +30,15 @@ export class BranchComponent implements OnInit {
   url:string = this.router.url.toString().slice(1,);
   branch_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
 
+  // material ui form state
+  displayedColumns: string[] = ['location','status','info']; 
+  dataSource$ = this.data$.pipe(
+    map(item=>{
+      let ds = new MatTableDataSource<Branch>();
+      ds.data.push(...item!);
+      return ds;
+    })
+  ); 
 
   constructor(
     private store:Store,
@@ -77,7 +88,6 @@ export class BranchComponent implements OnInit {
   getInfo(id:string){
     this.router.navigate([this.url,id]);
   }
-
   closeAddForm(){
     this.showAddForm = !this.showAddForm;
   }

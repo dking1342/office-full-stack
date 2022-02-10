@@ -1,0 +1,21 @@
+<div class="view-header-body">
+    <h1>{{ title }}</h1>
+    <button 
+        *ngIf="isAll"
+        mat-mini-fab 
+        color="primary"
+        (click)="onToggleAddForm()"
+        matTooltip="Add entry"
+    >
+        <mat-icon>add</mat-icon>
+    </button>
+    <button 
+        mat-mini-fab
+        color="accent"
+        *ngIf="!isAll"
+        (click)="clickGoBack()"
+        matTooltip="Go back"
+    >
+        <mat-icon>keyboard_backspace</mat-icon>
+    </button>
+</div>

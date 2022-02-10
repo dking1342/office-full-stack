@@ -39,6 +39,7 @@ export const customerReducer = createReducer(
     on(GET_CUSTOMERS_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         };
         return state;
@@ -67,6 +68,7 @@ export const customerReducer = createReducer(
     on(ADD_CUSTOMER_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         }
         return state;
@@ -93,6 +95,7 @@ export const customerReducer = createReducer(
     on(UPDATE_CUSTOMER_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         }
         return state;
@@ -131,6 +134,7 @@ export const customerReducer = createReducer(
     on(DELETE_CUSTOMER_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         }
         return state;

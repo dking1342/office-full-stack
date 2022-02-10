@@ -40,6 +40,7 @@ export const branchReducer = createReducer(
     on(GET_BRANCHES_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         }
         return state;
@@ -68,6 +69,7 @@ export const branchReducer = createReducer(
     on(ADD_BRANCH_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         }
         return state;
@@ -94,6 +96,7 @@ export const branchReducer = createReducer(
     on(UPDATE_BRANCH_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         }
         return state;

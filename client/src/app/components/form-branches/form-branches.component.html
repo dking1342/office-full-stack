@@ -1,63 +1,64 @@
 <ng-container *ngIf="loadState$ | async as loadState" [ngSwitch]="loadState">
-    <ng-container *ngSwitchCase="DataState.LOADING">
-        loading...
-    </ng-container>
+    <app-view-message-box
+        *ngSwitchCase="DataState.LOADING"
+        [type]="DataState.LOADING"
+    ></app-view-message-box>
     <ng-container *ngSwitchCase="DataState.LOADED">
-        <form [formGroup]="form" (ngSubmit)="submitForm()">
+        <table class="mat-elevation-z8 demo-table">
+            <thead>
+                <th>Location</th>
+                <th>Status</th>
+            </thead>
+            <tbody>
+                <td>{{ location?.value }}</td>
+                <td>{{ branchStatus?.value }}</td>
+            </tbody>
+        </table>
+        <form class="form" [formGroup]="form" (ngSubmit)="submitForm()">
             <div>
-                <label for="location">Location</label>
-                <input 
-                    type="text" 
-                    autocomplete="off"
-                    name="location" 
-                    formControlName="location"
-                >
-                <app-validation-message
-                    [component]="location"
-                    message="Please provide a branch"
-                    [submitted]="submitted"
-                    [isFormField]="isFormField"
-                ></app-validation-message>
-            </div>
-            <div [formGroup]="selectForm">
-                <label for="branchStatus">Status: </label>
-                <select 
-                    name="branchStatus" 
-                    formControlName="status"
-                    (change)="changeStatus()"
-                >
-                    <option [value]="null" disabled>Choose status</option>
-                    <option 
-                        *ngFor="let status of locationStatus" 
-                        [ngValue]="status"
+                <mat-form-field>
+                    <mat-label>Location</mat-label>
+                    <input 
+                        matInput
+                        type="text"
+                        autocomplete="off"
+                        name="location" 
+                        formControlName="location"
+                        maxlength="25"
                     >
-                        {{status}}
-                    </option>
-                </select>
-                <app-validation-message
-                    [component]="status"
-                    message="Please select a status"
-                    [submitted]="submitted"
-                    [isFormField]="isFormField"
-                ></app-validation-message>
+                    <mat-error
+                        *ngIf="location?.invalid && (location?.dirty || location?.touched || submitted)"
+                    >
+                        Please provide a location
+                    </mat-error>
+                </mat-form-field>
             </div>
-        
-            <table>
-                <thead>
-                    <th>Location</th>
-                    <th>Status</th>
-                </thead>
-                <tbody>
-                    <td>{{ location?.value }}</td>
-                    <td>{{ branchStatus?.value }}</td>
-                </tbody>
-            </table>
             <div>
-                <input type="submit" value="Submit">
+                <mat-form-field>
+                    <mat-label>Status</mat-label>
+                    <mat-select
+                        name="branchStatus" 
+                        formControlName="branchStatus"
+                    >
+                        <mat-option value="null" disabled>Choose a status</mat-option>
+                        <mat-option *ngFor="let status of locationStatus" [value]="status">
+                            {{ status }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-error
+                        *ngIf="branchStatus?.invalid && (branchStatus?.dirty || branchStatus?.touched || submitted)"
+                    >
+                        Please select a status
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <div>
+                <button type="submit" mat-flat-button color="primary">Submit</button>
             </div>
         </form>        
     </ng-container>
-    <ng-container * ngSwitchCase="DataState.ERROR">
-        {{ error$ | async }}
-    </ng-container>
+    <app-view-message-box
+        *ngSwitchCase="DataState.ERROR"
+        [type]="DataState.ERROR"
+    ></app-view-message-box>
 </ng-container>

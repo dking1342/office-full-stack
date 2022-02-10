@@ -4,6 +4,7 @@ import { BranchComponent } from './components/branch/branch.component';
 import { CustomerComponent } from './components/customer/customer.component';
 import { EmpsComponent } from './components/emps/emps.component';
 import { InventoryComponent } from './components/inventory/inventory.component';
+import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import { ProductComponent } from './components/product/product.component';
 import { SupplierComponent } from './components/supplier/supplier.component';
 import { TransactionComponent } from './components/transaction/transaction.component';
@@ -61,6 +62,10 @@ const routes: Routes = [
   {
     path:"transactions/:id",
     component:TransactionComponent
+  },
+  {
+    path:"",
+    component:LandingPageComponent
   }
 ];
 

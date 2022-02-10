@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { BehaviorSubject } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { TransactionTypes } from 'src/app/enums/transaction';
 import { GET_CUSTOMERS, GET_CUSTOMERS_SUCCESS } from 'src/app/store/actions/customerActions';
@@ -12,14 +13,14 @@ import { ADD_TRANSACTION, EDIT_TRANSACTION_CLEAR, EDIT_TRANSACTION_CUSTOMER, EDI
 import { selectCustomerFilteredCustomerData } from 'src/app/store/selectors/customerSelectors';
 import { selectEmployeeFilteredEmployeeData } from 'src/app/store/selectors/employeeSelector';
 import { selectProductFilteredProductData } from 'src/app/store/selectors/productSelectors';
-import { selectSupplierFilteredSupplierData } from 'src/app/store/selectors/supplierSelectors';
+import { selectSupplierDropDown, selectSupplierFilteredSupplierData } from 'src/app/store/selectors/supplierSelectors';
 import { selectTransactionDataState, selectTransactionError, selectTransactionFilterData, selectTransactionFormOutput } from 'src/app/store/selectors/transactionSelectors';
 import { Customer, Employee, FetchResponse, Product, ResponseAppState, Supplier, Transaction } from 'src/types/general';
 
 @Component({
   selector: 'app-form-transaction',
   templateUrl: './form-transaction.component.html',
-  styleUrls: ['./form-transaction.component.css']
+  styleUrls: ['./form-transaction.component.css','../../app.component.css']
 })
 export class FormTransactionComponent implements OnInit {
   @Input() type = "";
@@ -56,6 +57,8 @@ export class FormTransactionComponent implements OnInit {
   customerList$ = this.storeCustomer.select(selectCustomerFilteredCustomerData);
   productList$ = this.storeProduct.select(selectProductFilteredProductData);
   supplierList$ = this.storeSupplier.select(selectSupplierFilteredSupplierData);
+  supplierDropList = new BehaviorSubject<Supplier[]>([]);
+  supplierDropList$ = this.supplierDropList.asObservable();
   rolesList:String[] = [];
 
   constructor(
@@ -177,6 +180,15 @@ export class FormTransactionComponent implements OnInit {
       this.store.dispatch(EDIT_TRANSACTION_SUPPLIER({supplier:null}));
       this.supplier!.setValue(null);
     }
+  }
+
+  changeProduct(){
+    this.storeSupplier
+      .select(selectSupplierDropDown({id:this.product?.value.product_id}))
+      .subscribe(observer=>{
+        this.supplierDropList.next(observer!);
+      })
+      .unsubscribe();
   }
 
 

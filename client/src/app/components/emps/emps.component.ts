@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { map } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { DELETE_EMPLOYEE, GET_EMPLOYEES, GET_EMPLOYEES_SAVED, GET_EMPLOYEES_SUCCESS } from 'src/app/store/actions/employeeActions';
 import { selectEmployeeDataState, selectEmployeeError, selectEmployeeFilteredEmployeeData } from 'src/app/store/selectors/employeeSelector';
@@ -9,12 +11,11 @@ import { Employee, FetchResponse, ResponseAppState } from 'src/types/general';
 @Component({
   selector: 'app-emps',
   templateUrl: './emps.component.html',
-  styleUrls: ['./emps.component.css']
+  styleUrls: ['./emps.component.css','../../app.component.css']
 })
 export class EmpsComponent implements OnInit {
 
   // observables
-  state$ = this.store.select(state=>state);
   data$ = this.store.select(selectEmployeeFilteredEmployeeData);
   loadState$ = this.store.select(selectEmployeeDataState);
   error$ = this.store.select(selectEmployeeError);
@@ -29,6 +30,16 @@ export class EmpsComponent implements OnInit {
   url:string = this.router.url.toString().slice(1,);
   employee_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
 
+  // material ui form state
+  displayedColumns: string[] = ['firstName','lastName','role','branch','info']; 
+  dataSource$ = this.data$.pipe(
+    map(item=>{
+      let ds = new MatTableDataSource<Employee>();
+      ds.data.push(...item!);
+      return ds;
+    })
+  );  
+  
   constructor(
     private router:Router,
     private store: Store<ResponseAppState<Employee>>,
@@ -88,7 +99,6 @@ export class EmpsComponent implements OnInit {
   getInfo(id:string){
     this.router.navigate([this.url,id]);
   }
-
   closeAddForm(){
     this.showAddForm = !this.showAddForm;
   }

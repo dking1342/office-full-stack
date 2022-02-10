@@ -39,6 +39,7 @@ export const productReducer = createReducer(
     on(GET_PRODUCTS_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         };
         return state;
@@ -67,6 +68,7 @@ export const productReducer = createReducer(
     on(ADD_PRODUCT_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         }
         return state;
@@ -93,6 +95,7 @@ export const productReducer = createReducer(
     on(UPDATE_PRODUCT_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         }
         return state;

@@ -10,7 +10,7 @@ import { Customer, Employee, FetchResponse, Product, ResponseAppState, responseC
 @Component({
   selector: 'app-form-transactions',
   templateUrl: './form-transactions.component.html',
-  styleUrls: ['./form-transactions.component.css']
+  styleUrls: ['./form-transactions.component.css','../../app.component.css']
 })
 export class FormTransactionsComponent implements OnInit {
   @Input() type = "";

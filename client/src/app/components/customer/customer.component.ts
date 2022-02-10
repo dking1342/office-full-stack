@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { map } from 'rxjs';
 import { Requeststatus } from 'src/app/enums/requeststatus';
 import { DELETE_CUSTOMER, GET_CUSTOMER, GET_CUSTOMERS, GET_CUSTOMERS_SUCCESS } from 'src/app/store/actions/customerActions';
 import { selectCustomerDataState, selectCustomerError, selectCustomerFilteredCustomerData } from 'src/app/store/selectors/customerSelectors';
@@ -9,7 +11,7 @@ import { Customer, FetchResponse, ResponseAppState } from 'src/types/general';
 @Component({
   selector: 'app-customer',
   templateUrl: './customer.component.html',
-  styleUrls: ['./customer.component.css']
+  styleUrls: ['./customer.component.css','../../app.component.css']
 })
 export class CustomerComponent implements OnInit {
 
@@ -29,9 +31,19 @@ export class CustomerComponent implements OnInit {
   url:string = this.router.url.toString().slice(1,);
   c_id = this.router.url.split("/")[this.router.url.split("/").length - 1];
 
+  // material ui form state
+  displayedColumns: string[] = ['name','info']; 
+  dataSource$ = this.data$.pipe(
+    map(item=>{
+      let ds = new MatTableDataSource<Customer>();
+      ds.data.push(...item!);
+      return ds;
+    })
+  ); 
+
   constructor(
     private router:Router,
-    private store:Store
+    private store:Store<ResponseAppState<Customer>>
   ) { }
 
   // lifecycle hooks
@@ -90,14 +102,13 @@ export class CustomerComponent implements OnInit {
   getInfo(id:string){
     this.router.navigate([this.url,id]);
   }
-
   closeAddForm(){
     this.showAddForm = !this.showAddForm;
   }
   closeEditForm(){
     this.showEditForm = !this.showEditForm;
   }
-  refreshEmployeeView(){
+  refreshCustomerView(){
     this.getData(this.url.split("/").length);
   }
 

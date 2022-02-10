@@ -49,6 +49,7 @@ export const transactionReducer = createReducer(
     on(GET_TRANSACTIONS_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         };
         return state;
@@ -77,6 +78,7 @@ export const transactionReducer = createReducer(
     on(ADD_TRANSACTION_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         }
         return state;
@@ -104,6 +106,7 @@ export const transactionReducer = createReducer(
     on(UPDATE_TRANSACTION_ERROR,(state,{error})=>{
         state = {
             ...state,
+            dataState:Requeststatus.ERROR,
             error
         }
         return state;

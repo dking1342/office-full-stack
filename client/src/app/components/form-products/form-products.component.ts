@@ -10,7 +10,7 @@ import { ADD_PRODUCT, UPDATE_PRODUCT } from 'src/app/store/actions/productAction
 @Component({
   selector: 'app-form-products',
   templateUrl: './form-products.component.html',
-  styleUrls: ['./form-products.component.css']
+  styleUrls: ['./form-products.component.css','../../app.component.css']
 })
 export class FormProductsComponent implements OnInit {
   @Input() type = "";
